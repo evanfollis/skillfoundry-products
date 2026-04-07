@@ -1,34 +1,34 @@
-# Bottleneck Radar Server
+# skillfoundry-products
 
-`bottleneck-radar` is a hosted MCP server for technical builders. It turns noisy input
-signals into ranked bottlenecks and concise product briefs.
+`skillfoundry-products` is the implementation repository for software artifacts that
+Skillfoundry builds and operates.
 
-## Public Tools
+This repo has two different lanes on purpose:
 
-- `analyze_signals`
-- `draft_brief`
+- `mechanisms/`: internal factory tools that help Skillfoundry identify, design, and
+  improve opportunities. These are not automatically public products.
+- `products/`: external, user-facing software artifacts that have been selected for
+  public deployment, distribution, and monetization.
 
-## Local Run
+The distinction matters. Internal mechanisms help the agent system think and decide
+better. External products are what we eventually sell or distribute through channels
+such as AgenticMarket.
 
-```bash
-python3.12 -m venv .venv
-source .venv/bin/activate
-python3.12 -m pip install -e .[dev]
-uvicorn bottleneck_radar_server.app:app --host 0.0.0.0 --port 8000
-```
+## Current Layout
 
-The MCP endpoint is mounted at `http://localhost:8000/mcp/`.
+- `mechanisms/bottleneck-radar/`: internal MCP mechanism for turning noisy source
+  signals into ranked bottlenecks and builder-ready opportunity briefs.
+- `products/`: reserved for future external products once a concrete monetized utility
+  is selected.
 
-## AgenticMarket Middleware
+## Working Rule
 
-When `AGENTICMARKET_SECRET` is set, requests hitting `/mcp` must include the
-`x-agenticmarket-secret` header. Local development works without that variable.
+Do not treat a mechanism as a product by default.
 
-## Health Check
+A mechanism graduates into a product only when Skillfoundry has made an explicit
+decision that:
 
-- `GET /health`
-
-## Deploy
-
-This repo includes [render.yaml](/Users/evanfollis/projects/skillfoundry/bottleneck-radar-server/render.yaml)
-for a simple HTTPS deployment path on Render.
+- the user-facing utility is clear,
+- the deployment surface is chosen,
+- the pricing or monetization path is chosen,
+- and the artifact deserves its own external lifecycle.

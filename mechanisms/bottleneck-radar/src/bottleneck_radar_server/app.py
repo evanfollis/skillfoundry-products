@@ -1,4 +1,4 @@
-"""ASGI app and MCP server entrypoint for Bottleneck Radar."""
+"""ASGI app and MCP server entrypoint for the Bottleneck Radar mechanism."""
 
 from __future__ import annotations
 
@@ -17,16 +17,16 @@ from .analysis import analyze_sources, draft_brief_from_cluster
 from .models import AnalyzeSignalsResult, DraftBriefResult, SignalSource
 
 
-class AgenticMarketSecretMiddleware(BaseHTTPMiddleware):
-    """Require AgenticMarket proxy secret for MCP requests when configured."""
+class SharedSecretMiddleware(BaseHTTPMiddleware):
+    """Require a shared secret for MCP requests when configured."""
 
     async def dispatch(self, request: Request, call_next):
         if not request.url.path.startswith("/mcp"):
             return await call_next(request)
-        expected_secret = os.getenv("AGENTICMARKET_SECRET")
+        expected_secret = os.getenv("SKILLFOUNDRY_SHARED_SECRET")
         if not expected_secret:
             return await call_next(request)
-        provided_secret = request.headers.get("x-agenticmarket-secret")
+        provided_secret = request.headers.get("x-skillfoundry-secret")
         if provided_secret != expected_secret:
             return JSONResponse(status_code=401, content={"error": "Unauthorized"})
         return await call_next(request)
@@ -35,11 +35,11 @@ class AgenticMarketSecretMiddleware(BaseHTTPMiddleware):
 async def homepage(_: Request) -> PlainTextResponse:
     """Minimal landing route."""
 
-    return PlainTextResponse("Bottleneck Radar MCP server is running.\n")
+    return PlainTextResponse("Bottleneck Radar mechanism is running.\n")
 
 
 async def health(_: Request) -> JSONResponse:
-    """Health check route for marketplace review and hosting probes."""
+    """Health check route for hosting probes."""
 
     return JSONResponse({"status": "ok", "service": "bottleneck-radar"})
 
@@ -74,7 +74,7 @@ def build_mcp_server() -> FastMCP:
         pain_summary: str,
         evidence_snippets: list[str],
         target_user: str,
-        distribution_surface: str = "AgenticMarket",
+        distribution_surface: str = "chosen distribution surface",
     ) -> DraftBriefResult:
         return draft_brief_from_cluster(
             cluster_title=cluster_title,
@@ -103,7 +103,7 @@ def create_app() -> Starlette:
             Route("/health", health),
             Mount("/mcp", mcp.streamable_http_app()),
         ],
-        middleware=[Middleware(AgenticMarketSecretMiddleware)],
+        middleware=[Middleware(SharedSecretMiddleware)],
         lifespan=lifespan,
     )
 

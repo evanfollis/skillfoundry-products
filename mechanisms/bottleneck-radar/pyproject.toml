@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "bottleneck-radar-server"
+name = "bottleneck-radar-mechanism"
 version = "0.1.0"
-description = "Hosted MCP server that turns noisy builder signals into ranked bottlenecks and concise product briefs."
+description = "Internal MCP mechanism that turns noisy builder signals into ranked bottlenecks and concise opportunity briefs."
 requires-python = ">=3.12"
 dependencies = [
   "mcp[cli]>=1.9.4",
@@ -21,7 +21,7 @@ dev = [
 ]
 
 [project.scripts]
-bottleneck-radar-server = "bottleneck_radar_server.app:run"
+bottleneck-radar-mechanism = "bottleneck_radar_server.app:run"
 
 [tool.setuptools.package-dir]
 "" = "src"

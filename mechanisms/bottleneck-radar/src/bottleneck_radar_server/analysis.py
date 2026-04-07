@@ -146,7 +146,7 @@ def draft_brief_from_cluster(
     pain_summary: str,
     evidence_snippets: list[str],
     target_user: str,
-    distribution_surface: str = "AgenticMarket",
+    distribution_surface: str = "chosen distribution surface",
 ) -> DraftBriefResult:
     """Turn one selected bottleneck cluster into a concise product brief."""
 
