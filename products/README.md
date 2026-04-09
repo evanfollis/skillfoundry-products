@@ -9,3 +9,8 @@ A product should land here only after Skillfoundry has chosen:
 - the concrete value proposition,
 - the launch channel,
 - and the operational owner.
+
+## Current Product Candidates
+
+- `launchpad-lint/`: first external MCP product candidate focused on launch-readiness
+  audit and package drafting for technical builders.

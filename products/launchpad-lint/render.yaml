@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: launchpad-lint
+    runtime: python
+    plan: starter
+    autoDeploy: true
+    buildCommand: pip install -e .
+    startCommand: uvicorn launchpad_lint.app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: LAUNCHPAD_LINT_SHARED_SECRET
+        sync: false

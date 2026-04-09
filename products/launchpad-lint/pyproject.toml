@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "launchpad-lint"
+version = "0.1.0"
+description = "MCP product that audits launch readiness and drafts a marketplace launch package."
+requires-python = ">=3.12"
+dependencies = [
+  "mcp[cli]>=1.9.4",
+  "starlette>=0.37.2",
+  "uvicorn>=0.30.1",
+  "pydantic>=2.7.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2.0"
+]
+
+[project.scripts]
+launchpad-lint = "launchpad_lint.app:run"
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.packages.find]
+where = ["src"]

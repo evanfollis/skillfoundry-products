@@ -18,8 +18,8 @@ such as AgenticMarket.
 
 - `mechanisms/bottleneck-radar/`: internal MCP mechanism for turning noisy source
   signals into ranked bottlenecks and builder-ready opportunity briefs.
-- `products/`: reserved for future external products once a concrete monetized utility
-  is selected.
+- `products/launchpad-lint/`: first external MCP product candidate for auditing launch
+  readiness and drafting marketplace launch packages.
 
 ## Working Rule
 
