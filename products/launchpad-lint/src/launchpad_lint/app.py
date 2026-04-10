@@ -18,17 +18,27 @@ from .models import LaunchPackageDraft, LaunchReadinessResult
 
 
 class SharedSecretMiddleware(BaseHTTPMiddleware):
-    """Require a preview secret for MCP requests when configured."""
+    """Require the appropriate secret for MCP requests when configured."""
 
     async def dispatch(self, request: Request, call_next):
         if not request.url.path.startswith("/mcp"):
             return await call_next(request)
-        expected_secret = os.getenv("LAUNCHPAD_LINT_SHARED_SECRET")
-        if not expected_secret:
+
+        # AgenticMarket uses a fixed proxy header after a server is approved.
+        agenticmarket_secret = os.getenv("AGENTICMARKET_SECRET")
+        if agenticmarket_secret:
+            provided_secret = request.headers.get("x-agenticmarket-secret")
+            if provided_secret != agenticmarket_secret:
+                return JSONResponse(status_code=401, content={"error": "Unauthorized"})
             return await call_next(request)
-        provided_secret = request.headers.get("x-launchpad-lint-secret")
-        if provided_secret != expected_secret:
-            return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+
+        # Before approval, allow a local preview secret for controlled public testing.
+        preview_secret = os.getenv("LAUNCHPAD_LINT_SHARED_SECRET")
+        if preview_secret:
+            provided_secret = request.headers.get("x-launchpad-lint-secret")
+            if provided_secret != preview_secret:
+                return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+
         return await call_next(request)
 
 

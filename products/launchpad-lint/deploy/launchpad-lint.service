@@ -1,0 +1,14 @@
+[Unit]
+Description=Launchpad Lint MCP product
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/projects/skillfoundry/skillfoundry-products/products/launchpad-lint
+EnvironmentFile=/opt/projects/skillfoundry/skillfoundry-products/products/launchpad-lint/.env.production
+ExecStart=/opt/projects/skillfoundry/skillfoundry-products/products/launchpad-lint/.venv/bin/uvicorn launchpad_lint.app:app --host 127.0.0.1 --port 8010
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

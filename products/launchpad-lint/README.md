@@ -38,10 +38,15 @@ uvicorn launchpad_lint.app:app --host 0.0.0.0 --port 8000
 
 The MCP endpoint is mounted at `http://localhost:8000/mcp/`.
 
-## Preview Secret
+## Request Authentication
 
-When `LAUNCHPAD_LINT_SHARED_SECRET` is set, requests hitting `/mcp` must include the
-`x-launchpad-lint-secret` header. Local development works without that variable.
+- For pre-approval preview deploys, if `LAUNCHPAD_LINT_SHARED_SECRET` is set, requests
+  hitting `/mcp` must include `x-launchpad-lint-secret`.
+- After AgenticMarket approval, if `AGENTICMARKET_SECRET` is set, requests hitting
+  `/mcp` must include `x-agenticmarket-secret` exactly as documented by
+  AgenticMarket.
+
+If neither variable is set, local development remains open.
 
 ## Health Check
 
