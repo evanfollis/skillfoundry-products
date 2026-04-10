@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.evanfollis/launchpad-lint",
+  "title": "Launchpad Lint",
+  "description": "Audit MCP launch readiness and draft a marketplace-ready package for technical builders.",
+  "version": "0.1.0",
+  "homepage": "https://skillfoundry.synaplex.ai/products/launchpad-lint",
+  "repository": {
+    "source": "github",
+    "url": "https://github.com/evanfollis/skillfoundry-products"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp"
+    }
+  ]
+}

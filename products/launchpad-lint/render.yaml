@@ -1,11 +1,17 @@
 services:
   - type: web
     name: launchpad-lint
-    runtime: python
+    runtime: docker
     plan: starter
-    autoDeploy: true
-    buildCommand: pip install -e .
-    startCommand: uvicorn launchpad_lint.app:app --host 0.0.0.0 --port $PORT
+    rootDir: products/launchpad-lint
+    autoDeployTrigger: commit
+    dockerfilePath: ./Dockerfile
+    dockerContext: ./
+    healthCheckPath: /health
     envVars:
+      - key: LAUNCHPAD_LINT_ENVIRONMENT
+        value: production
       - key: LAUNCHPAD_LINT_SHARED_SECRET
+        sync: false
+      - key: AGENTICMARKET_SECRET
         sync: false

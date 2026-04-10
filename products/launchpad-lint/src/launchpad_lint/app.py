@@ -3,7 +3,12 @@
 from __future__ import annotations
 
 import contextlib
+import json
 import os
+import time
+import uuid
+from datetime import UTC, datetime
+from typing import Any, Callable, TypeVar
 
 from mcp.server.fastmcp import FastMCP
 from starlette.applications import Starlette
@@ -14,7 +19,13 @@ from starlette.responses import JSONResponse, PlainTextResponse
 from starlette.routing import Mount, Route
 
 from .analysis import audit_launch_readiness, draft_launch_package
+from .feedback_store import record_feedback, summarize_feedback
+from .metadata import registry_manifest, server_card
 from .models import LaunchPackageDraft, LaunchReadinessResult
+from .models import LaunchFeedbackSubmission
+from .telemetry import emit_tool_event, summarize_telemetry
+
+ToolReturn = TypeVar("ToolReturn")
 
 
 class SharedSecretMiddleware(BaseHTTPMiddleware):
@@ -54,6 +65,112 @@ async def health(_: Request) -> JSONResponse:
     return JSONResponse({"status": "ok", "service": "launchpad-lint"})
 
 
+async def record_feedback_endpoint(request: Request) -> JSONResponse:
+    """Capture one durable reviewer feedback record."""
+
+    payload = await request.json()
+    submission = LaunchFeedbackSubmission.model_validate(payload)
+    receipt = record_feedback(submission)
+    emit_tool_event(
+        type="user_feedback_recorded",
+        request_id=str(uuid.uuid4()),
+        tool_name="feedback",
+        started_at=receipt.recorded_at,
+        finished_at=receipt.recorded_at,
+        success=True,
+        input_size_bytes=_payload_size_bytes(payload),
+        output_size_bytes=_payload_size_bytes(receipt),
+    )
+    return JSONResponse(receipt.model_dump(mode="json"), status_code=201)
+
+
+async def feedback_summary(_: Request) -> JSONResponse:
+    """Return a compact summary of current feedback records."""
+
+    summary = summarize_feedback()
+    return JSONResponse(summary.model_dump(mode="json"))
+
+
+async def telemetry_summary(_: Request) -> JSONResponse:
+    """Return aggregate telemetry metrics for completed tool calls."""
+
+    summary = summarize_telemetry()
+    return JSONResponse(summary.model_dump(mode="json"))
+
+
+async def static_server_card(_: Request) -> JSONResponse:
+    """Expose a static server card for registry and gateway fallback scans."""
+
+    return JSONResponse(server_card())
+
+
+async def registry_server_json(_: Request) -> JSONResponse:
+    """Expose a remote-server manifest for the MCP Registry."""
+
+    return JSONResponse(registry_manifest())
+
+
+def _iso_utc_now() -> str:
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
+
+
+def _payload_size_bytes(payload: Any) -> int:
+    if hasattr(payload, "model_dump"):
+        payload = payload.model_dump(mode="json")
+    return len(json.dumps(payload, sort_keys=True).encode("utf-8"))
+
+
+def instrument_tool_call(
+    *,
+    tool_name: str,
+    inputs: dict[str, Any],
+    run: Callable[[], ToolReturn],
+) -> ToolReturn:
+    """Run a tool with one structured telemetry envelope."""
+
+    request_id = str(uuid.uuid4())
+    started_at = _iso_utc_now()
+    started_perf = time.perf_counter()
+    input_size_bytes = _payload_size_bytes(inputs)
+
+    emit_tool_event(
+        type="tool_called",
+        request_id=request_id,
+        tool_name=tool_name,
+        started_at=started_at,
+        input_size_bytes=input_size_bytes,
+    )
+
+    try:
+        result = run()
+    except Exception as exc:
+        emit_tool_event(
+            type="tool_completed",
+            request_id=request_id,
+            tool_name=tool_name,
+            started_at=started_at,
+            finished_at=_iso_utc_now(),
+            latency_ms=int((time.perf_counter() - started_perf) * 1000),
+            success=False,
+            error_code=type(exc).__name__,
+            input_size_bytes=input_size_bytes,
+        )
+        raise
+
+    emit_tool_event(
+        type="tool_completed",
+        request_id=request_id,
+        tool_name=tool_name,
+        started_at=started_at,
+        finished_at=_iso_utc_now(),
+        latency_ms=int((time.perf_counter() - started_perf) * 1000),
+        success=True,
+        input_size_bytes=input_size_bytes,
+        output_size_bytes=_payload_size_bytes(result),
+    )
+    return result
+
+
 def build_mcp_server() -> FastMCP:
     """Create and register one fresh FastMCP server instance."""
 
@@ -76,13 +193,24 @@ def build_mcp_server() -> FastMCP:
         listing_draft: str = "",
         endpoint_url: str = "",
     ) -> LaunchReadinessResult:
-        return audit_launch_readiness(
-            server_name=server_name,
-            tool_names=tool_names,
-            tool_descriptions=tool_descriptions,
-            readme_text=readme_text,
-            listing_draft=listing_draft,
-            endpoint_url=endpoint_url,
+        return instrument_tool_call(
+            tool_name="audit_launch_readiness",
+            inputs={
+                "server_name": server_name,
+                "tool_names": tool_names,
+                "tool_descriptions": tool_descriptions,
+                "readme_text": readme_text,
+                "listing_draft": listing_draft,
+                "endpoint_url": endpoint_url,
+            },
+            run=lambda: audit_launch_readiness(
+                server_name=server_name,
+                tool_names=tool_names,
+                tool_descriptions=tool_descriptions,
+                readme_text=readme_text,
+                listing_draft=listing_draft,
+                endpoint_url=endpoint_url,
+            ),
         )
 
     @mcp.tool(
@@ -97,13 +225,24 @@ def build_mcp_server() -> FastMCP:
         positioning_hints: list[str] | None = None,
         constraints: list[str] | None = None,
     ) -> LaunchPackageDraft:
-        return draft_launch_package(
-            server_name=server_name,
-            target_user=target_user,
-            tool_names=tool_names,
-            tool_descriptions=tool_descriptions,
-            positioning_hints=positioning_hints,
-            constraints=constraints,
+        return instrument_tool_call(
+            tool_name="draft_launch_package",
+            inputs={
+                "server_name": server_name,
+                "target_user": target_user,
+                "tool_names": tool_names,
+                "tool_descriptions": tool_descriptions,
+                "positioning_hints": positioning_hints,
+                "constraints": constraints,
+            },
+            run=lambda: draft_launch_package(
+                server_name=server_name,
+                target_user=target_user,
+                tool_names=tool_names,
+                tool_descriptions=tool_descriptions,
+                positioning_hints=positioning_hints,
+                constraints=constraints,
+            ),
         )
 
     return mcp
@@ -123,6 +262,11 @@ def create_app() -> Starlette:
         routes=[
             Route("/", homepage),
             Route("/health", health),
+            Route("/server.json", registry_server_json),
+            Route("/feedback", record_feedback_endpoint, methods=["POST"]),
+            Route("/feedback/summary", feedback_summary),
+            Route("/telemetry/summary", telemetry_summary),
+            Route("/.well-known/mcp/server-card.json", static_server_card),
             Mount("/mcp", mcp.streamable_http_app()),
         ],
         middleware=[Middleware(SharedSecretMiddleware)],

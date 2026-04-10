@@ -60,4 +60,15 @@ The product service itself stays on `127.0.0.1:8010`. The gateway exposes it at:
 ```bash
 curl -I https://skillfoundry.synaplex.ai/products/launchpad-lint/health
 curl https://skillfoundry.synaplex.ai/products/launchpad-lint/health
+deploy/smoke_check.sh https://skillfoundry.synaplex.ai/products/launchpad-lint
 ```
+
+## Other Surfaces
+
+This product now includes additional deployment artifacts for comparison:
+
+- `render.yaml`
+- `railway.toml`
+- `fly.toml`
+- `Dockerfile`
+- `deploy/DEPLOYMENT_SURFACES.md`

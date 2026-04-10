@@ -45,6 +45,31 @@ uvicorn launchpad_lint.app:app --host 0.0.0.0 --port 8000
 
 The MCP endpoint is mounted at `http://localhost:8000/mcp/`.
 
+## Deployment Surfaces
+
+Launchpad Lint now includes deploy artifacts for:
+
+- Hetzner + systemd + Cloudflare tunnel
+- Render
+- Railway
+- Fly.io
+- generic Docker hosts
+
+See [DEPLOYMENT_SURFACES.md](/opt/projects/skillfoundry/skillfoundry-products/products/launchpad-lint/deploy/DEPLOYMENT_SURFACES.md).
+
+## Monetization Channels
+
+Launchpad Lint is now set up to support channel fan-out from one canonical runtime:
+
+- AgenticMarket
+- Smithery
+- MCP Registry
+- direct paid access experiments
+
+See [MONETIZATION_CHANNELS.md](/opt/projects/skillfoundry/skillfoundry-products/products/launchpad-lint/docs/MONETIZATION_CHANNELS.md).
+See [OPERATOR_MONETIZATION_RUNBOOK.md](/opt/projects/skillfoundry/skillfoundry-products/products/launchpad-lint/docs/OPERATOR_MONETIZATION_RUNBOOK.md).
+See [OPERATOR_TODO.md](/opt/projects/skillfoundry/skillfoundry-products/products/launchpad-lint/docs/OPERATOR_TODO.md).
+
 ## Request Authentication
 
 - For pre-approval preview deploys, if `LAUNCHPAD_LINT_SHARED_SECRET` is set, requests
@@ -58,3 +83,47 @@ If neither variable is set, local development remains open.
 ## Health Check
 
 - `GET /health`
+
+## Telemetry
+
+Each tool call now emits a structured telemetry envelope through the application
+logger and, by default, appends the same event to a durable NDJSON file with:
+
+- tool name
+- request id
+- latency
+- success or failure
+- approximate input and output payload sizes
+
+Set `LAUNCHPAD_LINT_ENVIRONMENT` to label events by environment.
+Set `LAUNCHPAD_LINT_TELEMETRY_PATH` to control where the durable telemetry stream is written.
+
+Telemetry summary is available at:
+
+- `GET /telemetry/summary`
+
+## Feedback Loop
+
+Launchpad Lint now exposes a minimal feedback surface so a session can be evaluated
+after use:
+
+- `POST /feedback`: upsert one reviewer feedback record
+- `GET /feedback/summary`: return compact aggregate quality metrics
+
+Each reviewer keeps one latest record that can be replaced later. Set
+`LAUNCHPAD_LINT_FEEDBACK_PATH` to control where the durable feedback file is written.
+
+## Registry Metadata
+
+The app now exposes:
+
+- `GET /server.json`
+- `GET /.well-known/mcp/server-card.json`
+
+## Smoke Check
+
+After deploying to any surface, run:
+
+```bash
+deploy/smoke_check.sh <base-url>
+```
