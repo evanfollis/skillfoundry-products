@@ -51,7 +51,7 @@ entry:
 
 ```yaml
 - hostname: launchpad.synaplex.ai
-  service: http://localhost:8010
+  service: http://127.0.0.1:8010
 ```
 
 Then restart cloudflared:
