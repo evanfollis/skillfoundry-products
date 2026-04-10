@@ -3,15 +3,15 @@
 This product is intended to run on the Hetzner Skillfoundry server behind the existing
 Cloudflare tunnel.
 
-## Proposed Hostname
+## Canonical External Route
 
-`launchpad.synaplex.ai`
+`https://skillfoundry.synaplex.ai/products/launchpad-lint/`
 
 ## Runtime Shape
 
 - systemd service
 - `uvicorn` bound to `127.0.0.1:8010`
-- Cloudflare Tunnel ingress routing the hostname to that local port
+- Skillfoundry platform gateway routing `/products/launchpad-lint/` to that local port
 
 ## Server Paths
 
@@ -44,32 +44,20 @@ systemctl enable --now launchpad-lint
 systemctl status launchpad-lint
 ```
 
-## Cloudflare Tunnel
+## Platform Gateway
 
-Add this ingress rule to `/etc/cloudflared/config.yml` before the final `http_status:404`
-entry:
+Install the shared gateway first using:
 
-```yaml
-- hostname: launchpad.synaplex.ai
-  service: http://127.0.0.1:8010
-```
+- `/opt/projects/skillfoundry/skillfoundry-products/deploy/REMOTE_PLATFORM.md`
 
-Then restart cloudflared:
+The product service itself stays on `127.0.0.1:8010`. The gateway exposes it at:
 
-```bash
-systemctl restart cloudflared
-systemctl status cloudflared
-```
-
-If the hostname does not already exist in Cloudflare DNS for the tunnel, create it with:
-
-```bash
-cloudflared tunnel route dns mentor launchpad.synaplex.ai
-```
+- `/products/launchpad-lint/health`
+- `/products/launchpad-lint/mcp`
 
 ## Verification
 
 ```bash
-curl -I https://launchpad.synaplex.ai/health
-curl https://launchpad.synaplex.ai/health
+curl -I https://skillfoundry.synaplex.ai/products/launchpad-lint/health
+curl https://skillfoundry.synaplex.ai/products/launchpad-lint/health
 ```

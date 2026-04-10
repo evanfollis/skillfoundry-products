@@ -10,6 +10,12 @@ This repo has two different lanes on purpose:
 - `products/`: external, user-facing software artifacts that have been selected for
   public deployment, distribution, and monetization.
 
+Public product routing should stay platform-centric. The preferred external shape is:
+
+- `https://skillfoundry.synaplex.ai/products/<product-slug>/...`
+
+not one public hostname per product.
+
 The distinction matters. Internal mechanisms help the agent system think and decide
 better. External products are what we eventually sell or distribute through channels
 such as AgenticMarket.

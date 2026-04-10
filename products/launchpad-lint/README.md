@@ -7,9 +7,10 @@ marketplace launch and drafts the minimum package needed to submit credibly.
 
 ## Current Preview Deployment
 
-- preview URL: `https://launchpad.synaplex.ai`
-- `/health` is public
-- `/mcp` is intentionally protected before marketplace approval
+- preview base URL: `https://skillfoundry.synaplex.ai/products/launchpad-lint/`
+- health URL: `https://skillfoundry.synaplex.ai/products/launchpad-lint/health`
+- MCP URL: `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp`
+- the MCP route is intentionally protected before marketplace approval
 
 ## Target User
 
