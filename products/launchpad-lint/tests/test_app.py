@@ -7,11 +7,12 @@ import tempfile
 import unittest
 
 from starlette.requests import Request
-from starlette.testclient import TestClient
+from starlette.responses import Response
 
 from launchpad_lint.app import (
-    create_app,
+    SharedSecretMiddleware,
     feedback_summary,
+    health,
     record_feedback_endpoint,
     registry_server_json,
     static_server_card,
@@ -21,18 +22,21 @@ from launchpad_lint.app import (
 
 class AppTests(unittest.TestCase):
     def test_health_route(self) -> None:
-        with TestClient(create_app()) as client:
-            response = client.get("/health")
+        request = self._json_request(path="/health", payload={})
+        response = asyncio.run(health(request))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["service"], "launchpad-lint")
+        self.assertEqual(json.loads(response.body)["service"], "launchpad-lint")
 
     def test_shared_secret_middleware(self) -> None:
         previous = os.environ.get("LAUNCHPAD_LINT_SHARED_SECRET")
         os.environ["LAUNCHPAD_LINT_SHARED_SECRET"] = "secret"
         try:
-            with TestClient(create_app()) as client:
-                unauthorized = client.post("/mcp", json={})
-                authorized = client.post("/mcp", json={}, headers={"x-launchpad-lint-secret": "secret"})
+            unauthorized = asyncio.run(self._dispatch_secret_middleware(headers=[]))
+            authorized = asyncio.run(
+                self._dispatch_secret_middleware(
+                    headers=[(b"x-launchpad-lint-secret", b"secret")]
+                )
+            )
             self.assertEqual(unauthorized.status_code, 401)
             self.assertNotEqual(authorized.status_code, 401)
         finally:
@@ -133,9 +137,12 @@ class AppTests(unittest.TestCase):
         os.environ["AGENTICMARKET_SECRET"] = "market-secret"
         os.environ.pop("LAUNCHPAD_LINT_SHARED_SECRET", None)
         try:
-            with TestClient(create_app()) as client:
-                unauthorized = client.post("/mcp", json={})
-                authorized = client.post("/mcp", json={}, headers={"x-agenticmarket-secret": "market-secret"})
+            unauthorized = asyncio.run(self._dispatch_secret_middleware(headers=[]))
+            authorized = asyncio.run(
+                self._dispatch_secret_middleware(
+                    headers=[(b"x-agenticmarket-secret", b"market-secret")]
+                )
+            )
             self.assertEqual(unauthorized.status_code, 401)
             self.assertNotEqual(authorized.status_code, 401)
         finally:
@@ -148,6 +155,29 @@ class AppTests(unittest.TestCase):
                 os.environ.pop("LAUNCHPAD_LINT_SHARED_SECRET", None)
             else:
                 os.environ["LAUNCHPAD_LINT_SHARED_SECRET"] = previous_preview
+
+    async def _dispatch_secret_middleware(
+        self, *, headers: list[tuple[bytes, bytes]]
+    ) -> Response:
+        async def receive() -> dict[str, object]:
+            return {"body": b"", "more_body": False, "type": "http.request"}
+
+        request = Request(
+            {
+                "type": "http",
+                "method": "GET",
+                "path": "/mcp/",
+                "headers": headers,
+                "query_string": b"",
+            },
+            receive,
+        )
+        middleware = SharedSecretMiddleware(app=lambda scope, receive, send: None)
+
+        async def call_next(_: Request) -> Response:
+            return Response(status_code=204)
+
+        return await middleware.dispatch(request, call_next)
 
 
 if __name__ == "__main__":

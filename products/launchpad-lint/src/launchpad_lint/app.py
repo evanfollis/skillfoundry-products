@@ -11,6 +11,7 @@ from datetime import UTC, datetime
 from typing import Any, Callable, TypeVar
 
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -26,6 +27,7 @@ from .models import LaunchFeedbackSubmission
 from .telemetry import emit_tool_event, summarize_telemetry
 
 ToolReturn = TypeVar("ToolReturn")
+SERVER_VERSION = "0.1.0"
 
 
 class SharedSecretMiddleware(BaseHTTPMiddleware):
@@ -174,12 +176,32 @@ def instrument_tool_call(
 def build_mcp_server() -> FastMCP:
     """Create and register one fresh FastMCP server instance."""
 
+    transport_security = TransportSecuritySettings(
+        enable_dns_rebinding_protection=True,
+        allowed_hosts=[
+            "127.0.0.1:*",
+            "localhost:*",
+            "[::1]:*",
+            "skillfoundry.synaplex.ai",
+            "skillfoundry.synaplex.ai:*",
+        ],
+        allowed_origins=[
+            "http://127.0.0.1:*",
+            "http://localhost:*",
+            "http://[::1]:*",
+            "https://skillfoundry.synaplex.ai",
+            "http://skillfoundry.synaplex.ai",
+        ],
+    )
+
     mcp = FastMCP(
         name="launchpad-lint",
         stateless_http=True,
         json_response=True,
         streamable_http_path="/",
+        transport_security=transport_security,
     )
+    mcp._mcp_server.version = SERVER_VERSION
 
     @mcp.tool(
         name="audit_launch_readiness",

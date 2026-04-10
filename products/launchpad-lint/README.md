@@ -9,7 +9,7 @@ marketplace launch and drafts the minimum package needed to submit credibly.
 
 - preview base URL: `https://skillfoundry.synaplex.ai/products/launchpad-lint/`
 - health URL: `https://skillfoundry.synaplex.ai/products/launchpad-lint/health`
-- MCP URL: `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp`
+- MCP URL: `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp/`
 - the MCP route is intentionally protected before marketplace approval
 
 ## Target User
@@ -69,13 +69,14 @@ Launchpad Lint is now set up to support channel fan-out from one canonical runti
 See [MONETIZATION_CHANNELS.md](/opt/projects/skillfoundry/skillfoundry-products/products/launchpad-lint/docs/MONETIZATION_CHANNELS.md).
 See [OPERATOR_MONETIZATION_RUNBOOK.md](/opt/projects/skillfoundry/skillfoundry-products/products/launchpad-lint/docs/OPERATOR_MONETIZATION_RUNBOOK.md).
 See [OPERATOR_TODO.md](/opt/projects/skillfoundry/skillfoundry-products/products/launchpad-lint/docs/OPERATOR_TODO.md).
+See [ADVERSARIAL_REVIEW_SPEC.md](/opt/projects/skillfoundry/skillfoundry-products/products/launchpad-lint/docs/ADVERSARIAL_REVIEW_SPEC.md).
 
 ## Request Authentication
 
 - For pre-approval preview deploys, if `LAUNCHPAD_LINT_SHARED_SECRET` is set, requests
-  hitting `/mcp` must include `x-launchpad-lint-secret`.
+  hitting `/mcp/` must include `x-launchpad-lint-secret`.
 - After AgenticMarket approval, if `AGENTICMARKET_SECRET` is set, requests hitting
-  `/mcp` must include `x-agenticmarket-secret` exactly as documented by
+  `/mcp/` must include `x-agenticmarket-secret` exactly as documented by
   AgenticMarket.
 
 If neither variable is set, local development remains open.

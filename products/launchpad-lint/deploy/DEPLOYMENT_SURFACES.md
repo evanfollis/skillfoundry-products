@@ -16,7 +16,7 @@ Deploy the same product across multiple hosting surfaces and compare:
 Every surface should expose the same routes:
 
 - `/health`
-- `/mcp`
+- `/mcp/`
 - `/feedback/summary`
 - `/telemetry/summary`
 

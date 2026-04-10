@@ -59,6 +59,28 @@ Decision:
 - treat this as an internal leverage lane for now
 - revisit once at least one skill has meaningful live telemetry
 
+## 4. builder diagnose / paid fix suite
+
+Why it matters:
+
+- it creates a stronger portfolio shape than one isolated paid reviewer
+- the free wedge can widen top-of-funnel while the paid fix lanes monetize specific
+  diagnosed problems
+- it creates clearer separation between diagnosis and remediation
+
+Why it is not above the current top lanes:
+
+- the exact wedge and paid follow-on sequence still need deliberate selection
+- it is a suite strategy, not one immediately shippable lane
+- `launchpad-lint` should finish its first review cycle before this suite becomes the
+  dominant portfolio bet
+
+Decision:
+
+- keep warm as the next suite program
+- use `docs/proposals/builder-diagnose-paid-fix-suite.md` as the parent strategy note
+- use the proposal files in `docs/proposals/` as the intake queue
+
 ## TypeScript Rule
 
 For near-term cash flow:

@@ -87,7 +87,7 @@ def registry_manifest() -> dict[str, Any]:
         "remotes": [
             {
                 "type": "streamable-http",
-                "url": f"{base_url}/mcp",
+                "url": f"{base_url}/mcp/",
             }
         ],
     }

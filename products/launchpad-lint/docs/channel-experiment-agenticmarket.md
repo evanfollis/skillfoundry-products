@@ -21,7 +21,7 @@
 ## Setup
 
 - canonical URL used:
-  `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp`
+  `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp/`
 - listing URL:
 - auth mode:
   `x-agenticmarket-secret`

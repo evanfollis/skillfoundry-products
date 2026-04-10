@@ -18,7 +18,7 @@ The local manifest file is already prepared at:
 - remote type:
   `streamable-http`
 - remote URL:
-  `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp`
+  `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp/`
 
 ## Repository
 

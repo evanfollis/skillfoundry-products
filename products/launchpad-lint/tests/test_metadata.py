@@ -19,7 +19,7 @@ class MetadataTests(unittest.TestCase):
             else:
                 os.environ["LAUNCHPAD_LINT_PUBLIC_BASE_URL"] = previous
 
-        self.assertEqual(manifest["remotes"][0]["url"], "https://example.com/launchpad/mcp")
+        self.assertEqual(manifest["remotes"][0]["url"], "https://example.com/launchpad/mcp/")
         self.assertEqual(manifest["name"], "io.github.evanfollis/launchpad-lint")
 
     def test_server_card_lists_current_tools(self) -> None:

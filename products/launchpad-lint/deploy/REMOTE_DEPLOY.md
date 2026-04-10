@@ -53,7 +53,7 @@ Install the shared gateway first using:
 The product service itself stays on `127.0.0.1:8010`. The gateway exposes it at:
 
 - `/products/launchpad-lint/health`
-- `/products/launchpad-lint/mcp`
+- `/products/launchpad-lint/mcp/`
 
 ## Verification
 

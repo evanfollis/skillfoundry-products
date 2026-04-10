@@ -16,7 +16,7 @@ Treat each discovery and payment surface as one arm in a multi-armed bandit:
 The canonical runtime should stay under Skillfoundry control:
 
 - homepage: `https://skillfoundry.synaplex.ai/products/launchpad-lint/`
-- remote MCP endpoint: `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp`
+- remote MCP endpoint: `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp/`
 - server card: `https://skillfoundry.synaplex.ai/products/launchpad-lint/.well-known/mcp/server-card.json`
 - registry manifest: `https://skillfoundry.synaplex.ai/products/launchpad-lint/server.json`
 

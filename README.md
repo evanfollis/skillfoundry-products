@@ -62,7 +62,9 @@ decision that:
 - `docs/SKILL_FACTORY_SCORECARD.md`: build-next scoring heuristic
 - `docs/TELEMETRY_MODEL.md`: minimum telemetry envelope for compounding learning
 - `docs/SKILL_PROPOSAL_TEMPLATE.md`: required pre-build proposal template
+- `docs/PORTFOLIO_INTAKE.md`: intake workflow for new product and suite ideas before they graduate into active builds
 - `docs/POST_LAUNCH_REVIEW_TEMPLATE.md`: required after-launch learning template
+- `docs/ADVERSARIAL_REVIEW_PRIMITIVES.md`: multi-lens skeptical review primitive for sharpening products and extracting reusable heuristics
 
 ## TypeScript Workspace Setup
 

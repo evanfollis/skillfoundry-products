@@ -6,4 +6,5 @@ dist/
 build/
 *.egg-info/
 products/launchpad-lint/.env.production
+products/launchpad-lint/.env.production.bak
 products/launchpad-lint/artifacts/

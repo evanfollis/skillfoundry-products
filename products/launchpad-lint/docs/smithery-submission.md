@@ -5,7 +5,7 @@ Use this as the exact operator reference for Smithery URL publishing.
 ## Canonical Runtime
 
 - remote MCP URL:
-  `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp`
+  `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp/`
 - homepage:
   `https://skillfoundry.synaplex.ai/products/launchpad-lint/`
 - server card:
@@ -39,5 +39,5 @@ and add it later.
 ## CLI Path
 
 ```bash
-npx -y @smithery/cli@latest mcp publish "https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp" -n @evanfollis/launchpad-lint
+npx -y @smithery/cli@latest mcp publish "https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp/" -n @evanfollis/launchpad-lint
 ```

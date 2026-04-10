@@ -26,7 +26,7 @@ Reason:
 
 - homepage: `https://skillfoundry.synaplex.ai/products/launchpad-lint/`
 - health: `https://skillfoundry.synaplex.ai/products/launchpad-lint/health`
-- mcp: `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp`
+- mcp: `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp/`
 - feedback summary: `https://skillfoundry.synaplex.ai/products/launchpad-lint/feedback/summary`
 - telemetry summary: `https://skillfoundry.synaplex.ai/products/launchpad-lint/telemetry/summary`
 - server card: `https://skillfoundry.synaplex.ai/products/launchpad-lint/.well-known/mcp/server-card.json`
@@ -47,7 +47,7 @@ Already prepared:
 1. Fix the wallet funding issue in your AgenticMarket account.
 2. Go to `https://agenticmarket.dev/dashboard/submit`.
 3. Submit:
-   - upstream URL: `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp`
+   - upstream URL: `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp/`
    - short description: `Audit MCP launch readiness and draft a marketplace-ready package for technical builders.`
    - price: `$0.09` per successful call
    - visibility: `unlisted`
@@ -76,13 +76,13 @@ UI path:
 
 1. Go to `https://smithery.ai/new`.
 2. Enter:
-   `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp`
+   `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp/`
 3. Complete the URL publish flow.
 
 CLI path:
 
 ```bash
-npx -y @smithery/cli@latest mcp publish "https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp" -n @evanfollis/launchpad-lint
+npx -y @smithery/cli@latest mcp publish "https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp/" -n @evanfollis/launchpad-lint
 ```
 
 Important:

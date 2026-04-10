@@ -9,7 +9,7 @@ Track which monetization and discovery arms are prepared, launched, or killed.
 ### AgenticMarket
 
 - status: ready for operator submission
-- canonical runtime: `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp`
+- canonical runtime: `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp/`
 - pricing target: `$0.09` per successful call
 - visibility target: `unlisted`
 - payment role: primary current payment arm
@@ -17,7 +17,7 @@ Track which monetization and discovery arms are prepared, launched, or killed.
 ### Smithery
 
 - status: ready for operator submission
-- canonical runtime: `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp`
+- canonical runtime: `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp/`
 - server card: `https://skillfoundry.synaplex.ai/products/launchpad-lint/.well-known/mcp/server-card.json`
 - payment role: discovery and install arm
 
