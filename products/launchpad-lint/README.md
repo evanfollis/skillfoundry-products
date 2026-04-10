@@ -5,6 +5,12 @@
 It helps technical builders audit whether an MCP server is actually ready for a public
 marketplace launch and drafts the minimum package needed to submit credibly.
 
+## Current Preview Deployment
+
+- preview URL: `https://launchpad.synaplex.ai`
+- `/health` is public
+- `/mcp` is intentionally protected before marketplace approval
+
 ## Target User
 
 Solo AI builders and small technical automation agencies that already have a working
