@@ -5,10 +5,27 @@
 It helps technical builders audit whether an MCP server is actually ready for a public
 marketplace launch and drafts the minimum package needed to submit credibly.
 
+## Target User
+
+Solo AI builders and small technical automation agencies that already have a working
+MCP server but need help turning it into a credible first public launch package.
+
 ## Public Tools
 
 - `audit_launch_readiness`
 - `draft_launch_package`
+
+## Example Prompts
+
+- "Audit whether my MCP server is ready for a first AgenticMarket launch."
+- "Tell me what is missing from this server package before I submit it publicly."
+- "Draft a launch package for this builder-facing MCP server."
+
+## Explicit Limits
+
+- Best for narrow builder-facing MCP servers, not broad product strategy.
+- Depends on the quality of the provided tool descriptions and docs.
+- Does not automate marketplace submission or final pricing decisions.
 
 ## Local Run
 
