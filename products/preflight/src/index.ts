@@ -295,6 +295,39 @@ export default {
       });
     }
 
+    if (url.pathname === "/server.json") {
+      return Response.json({
+        $schema: "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+        name: "io.github.evanfollis/preflight",
+        title: "Preflight",
+        description: skillConfig.description,
+        version: skillConfig.skillVersion,
+        remotes: [
+          {
+            type: "streamable-http",
+            url: "https://skillfoundry.synaplex.ai/products/preflight/mcp/",
+          },
+        ],
+      });
+    }
+
+    if (url.pathname === "/.well-known/mcp/server-card.json") {
+      return Response.json({
+        serverInfo: {
+          name: skillConfig.skillSlug,
+          version: skillConfig.skillVersion,
+        },
+        capabilities: {
+          tools: [
+            {
+              name: "check_publish_readiness",
+              description: "Validate whether an MCP server is publishable on real directories.",
+            },
+          ],
+        },
+      });
+    }
+
     if (url.pathname === "/api/check") {
       return handleRestApi(request);
     }

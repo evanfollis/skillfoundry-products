@@ -8,9 +8,7 @@
     "skipLibCheck": true,
     "outDir": "dist",
     "rootDir": "src",
-    "types": [
-      "@cloudflare/workers-types"
-    ]
+    "types": ["@types/node"]
   },
   "include": [
     "src/**/*.ts"
