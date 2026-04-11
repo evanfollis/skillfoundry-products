@@ -1,0 +1,225 @@
+openapi: 3.0.3
+info:
+  title: Launchpad Lint
+  description: |
+    Audit whether an MCP server package is ready for a credible marketplace launch,
+    and draft the minimum launch package. Built for MCP builders preparing their first
+    public directory submission.
+  version: 0.1.0
+  contact:
+    name: Skillfoundry
+    url: https://skillfoundry.synaplex.ai
+
+servers:
+  - url: https://skillfoundry.synaplex.ai/products/launchpad-lint
+    description: Production
+
+paths:
+  /api/audit:
+    post:
+      operationId: auditLaunchReadiness
+      summary: Audit launch readiness
+      description: |
+        Analyze an MCP server package for launch blockers, warnings, and strengths.
+        Returns a readiness score (0-100) and actionable fix list.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuditRequest'
+            example:
+              server_name: my-search-tool
+              tool_names: [web_search, summarize_results]
+              tool_descriptions:
+                - Search the web and return ranked results with sources
+                - Summarize search results into a concise answer
+              readme_text: "# My Search Tool\nAn MCP server for web search."
+              endpoint_url: https://my-search-tool.example.com/mcp/
+      responses:
+        '200':
+          description: Audit result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditResult'
+
+  /api/draft:
+    post:
+      operationId: draftLaunchPackage
+      summary: Draft launch package
+      description: |
+        Generate the minimum marketplace launch package for an MCP server.
+        Returns listing copy, example prompts, explicit limits, and pricing questions.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DraftRequest'
+            example:
+              server_name: my-search-tool
+              target_user: developers building AI-powered search
+              tool_names: [web_search, summarize_results]
+              tool_descriptions:
+                - Search the web and return ranked results with sources
+                - Summarize search results into a concise answer
+      responses:
+        '200':
+          description: Draft package
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DraftResult'
+
+  /health:
+    get:
+      operationId: healthCheck
+      summary: Health check
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /telemetry/summary:
+    get:
+      operationId: telemetrySummary
+      summary: Telemetry summary
+      description: Aggregated metrics for completed tool calls.
+      responses:
+        '200':
+          description: Telemetry data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TelemetrySummary'
+
+components:
+  schemas:
+    AuditRequest:
+      type: object
+      required: [server_name, tool_names, tool_descriptions]
+      properties:
+        server_name:
+          type: string
+          description: Name of the MCP server being audited
+        tool_names:
+          type: array
+          items:
+            type: string
+          description: List of public tool names
+        tool_descriptions:
+          type: array
+          items:
+            type: string
+          description: One description per tool (must match tool_names length)
+        readme_text:
+          type: string
+          default: ""
+          description: README or documentation text
+        listing_draft:
+          type: string
+          default: ""
+          description: Draft marketplace listing copy
+        endpoint_url:
+          type: string
+          default: ""
+          description: Public HTTPS endpoint URL
+
+    AuditResult:
+      type: object
+      properties:
+        readiness_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Overall readiness score
+        blockers:
+          type: array
+          items:
+            type: string
+          description: Must-fix issues before launch
+        warnings:
+          type: array
+          items:
+            type: string
+          description: Issues that weaken the launch
+        strengths:
+          type: array
+          items:
+            type: string
+          description: Things already done well
+        suggested_fixes:
+          type: array
+          items:
+            type: string
+          description: Ordered fix recommendations
+
+    DraftRequest:
+      type: object
+      required: [server_name, target_user, tool_names, tool_descriptions]
+      properties:
+        server_name:
+          type: string
+        target_user:
+          type: string
+          description: Who this server is for
+        tool_names:
+          type: array
+          items:
+            type: string
+        tool_descriptions:
+          type: array
+          items:
+            type: string
+        positioning_hints:
+          type: array
+          items:
+            type: string
+          description: Optional positioning guidance
+        constraints:
+          type: array
+          items:
+            type: string
+          description: Optional explicit constraints
+
+    DraftResult:
+      type: object
+      properties:
+        short_description:
+          type: string
+        long_description:
+          type: string
+        example_prompts:
+          type: array
+          items:
+            type: string
+        explicit_limits:
+          type: array
+          items:
+            type: string
+        pricing_questions:
+          type: array
+          items:
+            type: string
+
+    TelemetrySummary:
+      type: object
+      properties:
+        call_success_rate:
+          type: number
+        p50_latency_ms:
+          type: number
+        p95_latency_ms:
+          type: number
+        total_completed_calls:
+          type: integer
+        tool_breakdown:
+          type: object

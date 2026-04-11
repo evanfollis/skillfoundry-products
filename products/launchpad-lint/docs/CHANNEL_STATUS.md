@@ -28,6 +28,16 @@ Track which monetization and discovery arms are prepared, launched, or killed.
 - registry name: `io.github.evanfollis/launchpad-lint`
 - payment role: discovery arm
 
+### RapidAPI
+
+- status: ready for submission
+- OpenAPI spec: `docs/openapi.yaml`
+- REST endpoints: `/api/audit` (POST), `/api/draft` (POST)
+- payment role: primary payment arm (platform-managed billing, ~20% commission)
+- discovery: large existing developer user base, search, recommendations
+- telemetry: provider analytics API
+- submission method: upload OpenAPI spec via RapidAPI Provider Dashboard or Provider API
+
 ### Direct x402
 
 - status: deferred

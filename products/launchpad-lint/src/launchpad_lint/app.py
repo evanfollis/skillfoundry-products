@@ -61,6 +61,47 @@ async def homepage(_: Request) -> PlainTextResponse:
     return PlainTextResponse("Launchpad Lint MCP product is running.\n")
 
 
+# --- REST API endpoints (for RapidAPI, direct integrations, etc.) ---
+
+
+async def api_audit(request: Request) -> JSONResponse:
+    """REST API: audit launch readiness for an MCP server package."""
+
+    payload = await request.json()
+    result = instrument_tool_call(
+        tool_name="audit_launch_readiness",
+        inputs=payload,
+        run=lambda: audit_launch_readiness(
+            server_name=payload.get("server_name", ""),
+            tool_names=payload.get("tool_names", []),
+            tool_descriptions=payload.get("tool_descriptions", []),
+            readme_text=payload.get("readme_text", ""),
+            listing_draft=payload.get("listing_draft", ""),
+            endpoint_url=payload.get("endpoint_url", ""),
+        ),
+    )
+    return JSONResponse(result.model_dump(mode="json"))
+
+
+async def api_draft(request: Request) -> JSONResponse:
+    """REST API: draft a launch package for an MCP server."""
+
+    payload = await request.json()
+    result = instrument_tool_call(
+        tool_name="draft_launch_package",
+        inputs=payload,
+        run=lambda: draft_launch_package(
+            server_name=payload.get("server_name", ""),
+            target_user=payload.get("target_user", ""),
+            tool_names=payload.get("tool_names", []),
+            tool_descriptions=payload.get("tool_descriptions", []),
+            positioning_hints=payload.get("positioning_hints"),
+            constraints=payload.get("constraints"),
+        ),
+    )
+    return JSONResponse(result.model_dump(mode="json"))
+
+
 async def health(_: Request) -> JSONResponse:
     """Health check route for hosting probes."""
 
@@ -285,6 +326,8 @@ def create_app() -> Starlette:
             Route("/", homepage),
             Route("/health", health),
             Route("/server.json", registry_server_json),
+            Route("/api/audit", api_audit, methods=["POST"]),
+            Route("/api/draft", api_draft, methods=["POST"]),
             Route("/feedback", record_feedback_endpoint, methods=["POST"]),
             Route("/feedback/summary", feedback_summary),
             Route("/telemetry/summary", telemetry_summary),
