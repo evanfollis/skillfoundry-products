@@ -300,7 +300,7 @@ export default {
         $schema: "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
         name: "io.github.evanfollis/preflight",
         title: "Preflight",
-        description: skillConfig.description,
+        description: "Check if your MCP server is ready to publish on the MCP Registry, Smithery, or npm.",
         version: skillConfig.skillVersion,
         remotes: [
           {

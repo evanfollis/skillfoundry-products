@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.evanfollis/preflight",
   "title": "Preflight",
-  "description": "Validate whether an MCP server is publishable on real directories (MCP Registry, Smithery, npm). Provide raw artifact contents and get evidence-backed findings with source-linked directory rules.",
+  "description": "Check if your MCP server is ready to publish on the MCP Registry, Smithery, or npm.",
   "version": "0.1.0",
   "repository": {
     "url": "https://github.com/evanfollis/preflight",
