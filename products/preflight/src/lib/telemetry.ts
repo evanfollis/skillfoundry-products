@@ -19,6 +19,9 @@ export type TelemetryEvent = {
   success?: boolean;
   toolName?: string;
   type: TelemetryEventName;
+  userAgent?: string;
+  verdict?: string;
+  targetDirectories?: string[];
 };
 
 export function emitTelemetry(event: TelemetryEvent): void {

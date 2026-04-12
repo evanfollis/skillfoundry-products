@@ -98,7 +98,8 @@ function runCheck(params: Record<string, unknown>) {
     artifacts,
     params.target_directories as unknown[],
   );
-  return evaluate({ artifacts, targetDirectories });
+  const result = evaluate({ artifacts, targetDirectories });
+  return { ...result, targetDirectories };
 }
 
 // --- MCP JSON-RPC handler (Streamable HTTP) ---
@@ -151,25 +152,34 @@ function handleToolsList(id: unknown) {
   });
 }
 
-function handleToolsCall(id: unknown, params: Record<string, unknown>) {
+function handleToolsCall(
+  id: unknown,
+  params: Record<string, unknown>,
+): { response: unknown; verdict?: string; targetDirectories?: string[] } {
   const toolName = params.name;
   if (toolName !== "check_publish_readiness") {
-    return jsonRpcError(id, -32602, `Unknown tool: ${toolName}`);
+    return { response: jsonRpcError(id, -32602, `Unknown tool: ${toolName}`) };
   }
 
   const args = (params.arguments ?? {}) as Record<string, unknown>;
   const result = runCheck(args);
 
   if ("error" in result) {
-    return jsonRpcResponse(id, {
-      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-      isError: true,
-    });
+    return {
+      response: jsonRpcResponse(id, {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+        isError: true,
+      }),
+    };
   }
 
-  return jsonRpcResponse(id, {
-    content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-  });
+  return {
+    response: jsonRpcResponse(id, {
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+    }),
+    verdict: (result as { verdict?: string }).verdict,
+    targetDirectories: (result as { targetDirectories?: string[] }).targetDirectories,
+  };
 }
 
 async function handleMcp(request: Request, env: Env): Promise<Response> {
@@ -198,6 +208,7 @@ async function handleMcp(request: Request, env: Env): Promise<Response> {
   const requestId = crypto.randomUUID();
   const sessionId = crypto.randomUUID();
   const startedAt = new Date().toISOString();
+  const userAgent = request.headers.get("user-agent") ?? undefined;
 
   emitTelemetry({
     environment: env.ENVIRONMENT ?? "development",
@@ -205,6 +216,7 @@ async function handleMcp(request: Request, env: Env): Promise<Response> {
     sessionId,
     startedAt,
     type: "session_started",
+    userAgent,
   });
 
   let body: Record<string, unknown>;
@@ -222,6 +234,8 @@ async function handleMcp(request: Request, env: Env): Promise<Response> {
   const params = (body.params ?? {}) as Record<string, unknown>;
 
   let response: unknown;
+  let verdict: string | undefined;
+  let targetDirectories: string[] | undefined;
 
   switch (method) {
     case "initialize":
@@ -233,9 +247,19 @@ async function handleMcp(request: Request, env: Env): Promise<Response> {
     case "tools/list":
       response = handleToolsList(id);
       break;
-    case "tools/call":
-      response = handleToolsCall(id, params);
+    case "resources/list":
+      response = jsonRpcResponse(id, { resources: [] });
       break;
+    case "prompts/list":
+      response = jsonRpcResponse(id, { prompts: [] });
+      break;
+    case "tools/call": {
+      const r = handleToolsCall(id, params);
+      response = r.response;
+      verdict = r.verdict;
+      targetDirectories = r.targetDirectories;
+      break;
+    }
     case "ping":
       response = jsonRpcResponse(id, {});
       break;
@@ -253,6 +277,9 @@ async function handleMcp(request: Request, env: Env): Promise<Response> {
     success: true,
     toolName: method,
     type: "session_completed",
+    userAgent,
+    verdict,
+    targetDirectories,
   });
 
   return Response.json(response, {
