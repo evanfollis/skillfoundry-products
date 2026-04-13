@@ -3,7 +3,9 @@
 ## Change
 
 - `change_id`: `launchpad-lint-initial-revenue-lane`
-- `skill_slug`: `launchpad-lint`
+- `probe_or_offering_slug`: `launchpad-lint`
+- `assumption_id`: `launchpad-lint-first-external-commitment`
+- `probe_id`: `launchpad-lint-agenticmarket-live-listing`
 - `owner`: `skillfoundry`
 - `date_started`: `2026-04-10`
 
@@ -20,6 +22,7 @@
   operating MCP servers
 - workflow affected: launch-readiness audit followed by launch package drafting
 - metric owner: valuation with builder and growth support
+- external surface: `https://agenticmarket.dev/strange_loop/launchpad-lint`
 
 ## Measures
 
@@ -37,12 +40,14 @@
 ## Thresholds
 
 - success threshold:
-  - at least one clean full activation with clear usefulness feedback
+  - at least one external builder completes the full two-call activation path
+  - the same builder provides an external commitment signal or repeat intent strong enough to justify continued selling
   - output judged to require only light editing
   - no major reliability failure in the successful session
 - failure threshold:
   - installs occur but no clean full two-call activation happens
   - or users complete the flow but still report heavy rewriting
+  - or no meaningful external commitment appears in the first launch cycle despite live distribution
 - ambiguous range:
   - activation happens but usefulness is mixed or repeat intent is weak
 

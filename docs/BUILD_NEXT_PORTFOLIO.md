@@ -2,8 +2,8 @@
 
 ## Goal
 
-Rank the current external skill lanes by expected speed to first cash flow, quality of
-learning, and long-term strategic leverage.
+Rank the current external offering and probe lanes by expected speed to first cash
+flow, quality of learning, and long-term strategic leverage.
 
 ## Current Order
 
@@ -46,7 +46,7 @@ Decision:
 
 Why it matters:
 
-- it becomes more valuable as more hosted skills exist
+- it becomes more valuable as more hosted offerings exist
 - it compounds factory learning directly
 
 Why it is not first:
@@ -57,7 +57,7 @@ Why it is not first:
 Decision:
 
 - treat this as an internal leverage lane for now
-- revisit once at least one skill has meaningful live telemetry
+- revisit once at least one offering has meaningful live telemetry
 
 ## 4. builder diagnose / paid fix suite
 
@@ -88,9 +88,9 @@ For near-term cash flow:
 - keep the current Python `launchpad-lint` lane if it remains reliable enough to test
   the market quickly
 
-For future external skills:
+For future external offerings:
 
-- default to the TypeScript remote skill lane
+- default to the TypeScript remote MCP lane
 - only keep non-TypeScript runtimes where they create clear product advantage
 
 ## Revisit Trigger

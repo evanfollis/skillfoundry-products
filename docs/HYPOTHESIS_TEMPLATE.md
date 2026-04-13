@@ -3,7 +3,9 @@
 ## Change
 
 - `change_id`:
-- `skill_slug`:
+- `probe_or_offering_slug`:
+- `assumption_id`:
+- `probe_id`:
 - `owner`:
 - `date_started`:
 

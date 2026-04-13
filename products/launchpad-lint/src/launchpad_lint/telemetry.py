@@ -14,6 +14,12 @@ LOGGER = logging.getLogger("launchpad_lint.telemetry")
 
 SKILL_SLUG = "launchpad-lint"
 SKILL_VERSION = "0.1.0"
+ASSUMPTION_ID = "launchpad-lint-first-external-commitment"
+PROBE_ID = "launchpad-lint-agenticmarket-live-listing"
+PROBE_TYPE = "remote_mcp_server"
+ARTIFACT_CLASS = "live_mcp_offering_probe"
+TARGET_EVIDENCE_CLASS = "external_commitment"
+MINIMUM_EVIDENCE_QUALITY = "moderate"
 
 
 def _default_telemetry_path() -> Path:
@@ -41,11 +47,17 @@ def emit_tool_event(
     """Emit one structured telemetry event to the configured logger."""
 
     payload: dict[str, Any] = {
+        "artifact_class": ARTIFACT_CLASS,
+        "assumption_id": ASSUMPTION_ID,
         "environment": os.getenv("LAUNCHPAD_LINT_ENVIRONMENT", "development"),
+        "minimum_evidence_quality": MINIMUM_EVIDENCE_QUALITY,
+        "probe_id": PROBE_ID,
+        "probe_type": PROBE_TYPE,
         "request_id": request_id,
         "skill_slug": SKILL_SLUG,
         "skill_version": SKILL_VERSION,
         "started_at": started_at,
+        "target_evidence_class": TARGET_EVIDENCE_CLASS,
         "tool_name": tool_name,
         "type": type,
     }

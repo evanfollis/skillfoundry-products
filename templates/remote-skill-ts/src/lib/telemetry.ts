@@ -28,8 +28,14 @@ export type SkillTelemetryEvent = {
 export function emitTelemetry(event: SkillTelemetryEvent): void {
   const payload = {
     ...event,
+    assumptionId: skillConfig.assumptionId,
+    artifactClass: skillConfig.artifactClass,
+    minimumEvidenceQuality: skillConfig.minimumEvidenceQuality,
+    probeId: skillConfig.probeId,
+    probeType: skillConfig.probeType,
     skillSlug: skillConfig.skillSlug,
     skillVersion: skillConfig.skillVersion,
+    targetEvidenceClass: skillConfig.targetEvidenceClass,
   };
 
   console.log(JSON.stringify(payload));

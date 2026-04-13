@@ -1,7 +1,7 @@
 # skillfoundry-products
 
-`skillfoundry-products` is the implementation repository for software artifacts that
-Skillfoundry builds and operates.
+`skillfoundry-products` is the implementation repository for the probes, mechanisms,
+and offerings that Skillfoundry builds and operates.
 
 This repo has two different lanes on purpose:
 
@@ -23,11 +23,11 @@ such as AgenticMarket.
 
 ## Default External Stack
 
-The default lane for new external hosted skills is now:
+The default lane for new external MCP offerings or probes is now:
 
 - TypeScript-first
 - remote MCP over Streamable HTTP
-- Cloudflare Workers for stateless skills
+- Cloudflare Workers for stateless offerings
 - Skillfoundry-owned public routes for the canonical runtime surface
 
 That keeps the runtime independent from any single marketplace while preserving a
@@ -39,13 +39,14 @@ simple path to distribution through registries and marketplaces later.
   signals into ranked bottlenecks and builder-ready opportunity briefs.
 - `products/launchpad-lint/`: first external MCP product candidate for auditing launch
   readiness and drafting marketplace launch packages.
-- `templates/remote-skill-ts/`: default starter for new remote TypeScript skills.
+- `templates/remote-skill-ts/`: default starter for new remote TypeScript MCP
+  probes or offerings.
 
 ## Working Rule
 
-Do not treat a mechanism as a product by default.
+Do not treat a mechanism as an offering by default.
 
-A mechanism graduates into a product only when Skillfoundry has made an explicit
+A mechanism graduates into an offering only when Skillfoundry has made an explicit
 decision that:
 
 - the user-facing utility is clear,
@@ -55,13 +56,13 @@ decision that:
 
 ## Factory Documents
 
-- `docs/CASHFLOW_ENGINE.md`: repo-level operating loop for external skills
+- `docs/CASHFLOW_ENGINE.md`: repo-level operating loop for commercial probes and offerings
 - `docs/BUILD_NEXT_PORTFOLIO.md`: current ranking of the next revenue lanes
 - `docs/LEARNING_LAB.md`: standard for turning launches and failures into reusable learning
 - `docs/HYPOTHESIS_TEMPLATE.md`: required hypothesis format for major changes
 - `docs/SKILL_FACTORY_SCORECARD.md`: build-next scoring heuristic
-- `docs/TELEMETRY_MODEL.md`: minimum telemetry envelope for compounding learning
-- `docs/SKILL_PROPOSAL_TEMPLATE.md`: required pre-build proposal template
+- `docs/TELEMETRY_MODEL.md`: minimum telemetry and evidence envelope for compounding learning
+- `docs/SKILL_PROPOSAL_TEMPLATE.md`: required pre-build probe template
 - `docs/PORTFOLIO_INTAKE.md`: intake workflow for new product and suite ideas before they graduate into active builds
 - `docs/POST_LAUNCH_REVIEW_TEMPLATE.md`: required after-launch learning template
 - `docs/ADVERSARIAL_REVIEW_PRIMITIVES.md`: multi-lens skeptical review primitive for sharpening products and extracting reusable heuristics

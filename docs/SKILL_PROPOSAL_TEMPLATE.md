@@ -1,27 +1,40 @@
-# Skill Proposal Template
+# Probe Proposal Template
 
-## Skill
+This file keeps its historical path for now, but the template is for probes and
+offerings rather than "skills" as the governing economic unit.
 
-- `skill_slug`:
+## Identity
+
+- `probe_slug`:
+- `assumption_id`:
+- `probe_id`:
+- `artifact_class`:
+- `probe_type`:
 - `target_user`:
+- `buyer_role`:
 - `owner`:
 
-## Bottleneck
+## Critical Assumption
 
-- repeated pain:
-- current workaround:
-- why now:
+- problem_claim:
+- economic_claim:
+- channel_claim:
+- current_workaround:
+- why_now:
 
-## Smallest Credible Tool Surface
+## Smallest Credible Probe Surface
 
 - tool 1:
 - tool 2:
 - tool 3:
+- offer_presented:
 
-## Activation
+## Evidence Plan
 
 - first-session outcome:
-- activation metric:
+- primary_metric:
+- target_evidence_class:
+- minimum_evidence_quality:
 - fastest proof of value:
 
 ## Testable Hypothesis
@@ -29,9 +42,10 @@
 - statement:
 - primary metric:
 - success threshold:
-- failure threshold:
+- falsification_rule:
 - observation window:
 - decision rule:
+- continue_rule:
 
 ## Economics
 

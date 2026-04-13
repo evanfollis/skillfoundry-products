@@ -16,6 +16,8 @@ from .models import (
 
 SKILL_SLUG = "launchpad-lint"
 SKILL_VERSION = "0.1.0"
+ASSUMPTION_ID = "launchpad-lint-first-external-commitment"
+PROBE_ID = "launchpad-lint-agenticmarket-live-listing"
 
 
 def _default_feedback_path() -> Path:
@@ -58,6 +60,8 @@ def record_feedback(submission: LaunchFeedbackSubmission) -> LaunchFeedbackRecei
 
     feedback_map[submission.reviewer_id] = LaunchFeedbackRecord(
         **submission.model_dump(),
+        assumption_id=ASSUMPTION_ID,
+        probe_id=PROBE_ID,
         recorded_at=recorded_at,
         skill_slug=SKILL_SLUG,
         skill_version=SKILL_VERSION,

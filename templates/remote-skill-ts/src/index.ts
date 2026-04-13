@@ -16,18 +16,22 @@ function buildServer(): McpServer {
   });
 
   server.registerTool(
-    "describe_skill",
+    "describe_probe",
     {
-      description: "Return the current skill description and activation metric.",
+      description: "Return the current probe description, activation metric, and evidence target.",
       inputSchema: {
         audience: z.string().optional(),
       },
     },
     async ({ audience }) => {
       const lines = [
-        `Skill: ${skillConfig.skillSlug}`,
+        `Probe: ${skillConfig.skillSlug}`,
         `Description: ${skillConfig.description}`,
         `Activation metric: ${skillConfig.activationMetric}`,
+        `Assumption: ${skillConfig.assumptionId}`,
+        `Probe id: ${skillConfig.probeId}`,
+        `Target evidence: ${skillConfig.targetEvidenceClass}`,
+        `Minimum evidence quality: ${skillConfig.minimumEvidenceQuality}`,
       ];
 
       if (audience) {

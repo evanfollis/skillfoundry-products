@@ -40,6 +40,8 @@ class LaunchFeedbackSubmission(BaseModel):
 class LaunchFeedbackRecord(LaunchFeedbackSubmission):
     """Durable feedback record with Skillfoundry-managed metadata."""
 
+    assumption_id: str
+    probe_id: str
     recorded_at: str
     skill_slug: str
     skill_version: str

@@ -1,8 +1,10 @@
 # Post-Launch Review Template
 
-## Skill
+## Probe Or Offering
 
-- `skill_slug`:
+- `probe_or_offering_slug`:
+- `assumption_id`:
+- `probe_id`:
 - launch date:
 - review window:
 
@@ -20,6 +22,7 @@
 - first successful sessions:
 - repeat sessions:
 - user or agent feedback:
+- strongest typed evidence:
 - p50 latency:
 - p95 latency:
 - success rate:
