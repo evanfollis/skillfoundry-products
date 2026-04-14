@@ -99,7 +99,37 @@ function runCheck(params: Record<string, unknown>) {
     params.target_directories as unknown[],
   );
   const result = evaluate({ artifacts, targetDirectories });
-  return { ...result, targetDirectories };
+  const verdict = (result as { verdict?: string }).verdict;
+  const nextSteps = buildNextSteps(verdict, targetDirectories);
+  return { ...result, targetDirectories, nextSteps };
+}
+
+function buildNextSteps(verdict: string | undefined, dirs: Directory[]) {
+  const base = "https://skillfoundry.synaplex.ai/products/preflight";
+  const dirParam = dirs.join(",");
+  if (verdict === "checks_pass") {
+    return {
+      message: "All checked rules pass. You're ready to publish.",
+      learnMore: `${base}#publish-guides`,
+    };
+  }
+  if (verdict === "fixable") {
+    return {
+      message:
+        "Blockers found, each with a concrete fix. Apply the fixes in the findings, then re-run Preflight.",
+      learnMore: `${base}#fix-guides?dirs=${dirParam}`,
+      notifyWhenFixToolLaunches: `${base}/notify?verdict=fixable&dirs=${dirParam}`,
+    };
+  }
+  if (verdict === "not_ready") {
+    return {
+      message:
+        "Fundamental issues detected. Review findings and consult the directory docs linked in each rule.",
+      learnMore: `${base}#not-ready`,
+      notifyWhenFixToolLaunches: `${base}/notify?verdict=not_ready&dirs=${dirParam}`,
+    };
+  }
+  return { learnMore: base };
 }
 
 // --- MCP JSON-RPC handler (Streamable HTTP) ---

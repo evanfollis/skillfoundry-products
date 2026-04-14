@@ -62,6 +62,7 @@ async function handleMcp(request: Request, env: Env): Promise<Response> {
   const sessionId = crypto.randomUUID();
   const startedAt = new Date().toISOString();
   const url = new URL(request.url);
+  const userAgent = request.headers.get("user-agent") ?? undefined;
 
   emitTelemetry({
     environment: env.ENVIRONMENT ?? "development",
@@ -70,6 +71,7 @@ async function handleMcp(request: Request, env: Env): Promise<Response> {
     startedAt,
     toolName: url.pathname,
     type: "session_started",
+    userAgent,
   });
 
   try {
@@ -86,6 +88,7 @@ async function handleMcp(request: Request, env: Env): Promise<Response> {
       success: response.status < 500,
       toolName: url.pathname,
       type: "session_completed",
+      userAgent,
     });
 
     return response;
@@ -101,6 +104,7 @@ async function handleMcp(request: Request, env: Env): Promise<Response> {
       success: false,
       toolName: url.pathname,
       type: "session_abandoned",
+      userAgent,
     });
 
     return new Response("Internal Server Error\n", { status: 500 });

@@ -23,6 +23,8 @@ export type SkillTelemetryEvent = {
   success?: boolean;
   toolName?: string;
   type: SkillTelemetryEventName;
+  userAgent?: string;
+  verdict?: string;
 };
 
 export function emitTelemetry(event: SkillTelemetryEvent): void {

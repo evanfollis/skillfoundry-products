@@ -1,1 +1,9 @@
-.mcpregistry_github_token
+node_modules/
+dist/
+*.log
+# Secret scratch files (mcp-publisher etc.)
+.mcpregistry_*
+*token*
+*.key
+.env
+.env.*
