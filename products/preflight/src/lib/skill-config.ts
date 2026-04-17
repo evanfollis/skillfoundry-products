@@ -12,8 +12,8 @@ export type SkillConfig = {
 };
 
 export const skillConfig: SkillConfig = {
-  assumptionId: "mcp-builders-need-publish-readiness-check",
-  probeId: "preflight-publish-readiness",
+  assumptionId: "preflight-distribution-signal-assumption",
+  probeId: "preflight-distribution-signal",
   probeType: "remote_mcp_server",
   artifactClass: "mcp_diagnostic",
   targetEvidenceClass: "behavioral_signal",
