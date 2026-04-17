@@ -26,7 +26,7 @@ All responding as of 2026-04-11:
 - **Server name:** `io.github.evanfollis/preflight`
 - **Remaining step:** Run these commands:
   ```bash
-  cd /opt/projects/skillfoundry/skillfoundry-products/products/preflight
+  cd /opt/workspace/projects/skillfoundry/skillfoundry-products/products/preflight
   mcp-publisher login github
   # Browser: go to https://github.com/login/device, enter the displayed code
   mcp-publisher publish
@@ -67,4 +67,4 @@ All responding as of 2026-04-11:
 - Service auto-restarts on failure (systemd)
 - Nginx reloads preserve routing
 - Code changes: edit src → `npx tsc` → `systemctl restart preflight`
-- Products repo pushes update GitHub: `cd /opt/projects/skillfoundry/skillfoundry-products && git push`
+- Products repo pushes update GitHub: `cd /opt/workspace/projects/skillfoundry/skillfoundry-products && git push`

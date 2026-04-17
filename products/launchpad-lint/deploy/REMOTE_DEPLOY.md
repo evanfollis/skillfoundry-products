@@ -15,14 +15,14 @@ Cloudflare tunnel.
 
 ## Server Paths
 
-- repo root: `/opt/projects/skillfoundry/skillfoundry-products/products/launchpad-lint`
-- env file: `/opt/projects/skillfoundry/skillfoundry-products/products/launchpad-lint/.env.production`
+- repo root: `/opt/workspace/projects/skillfoundry/skillfoundry-products/products/launchpad-lint`
+- env file: `/opt/workspace/projects/skillfoundry/skillfoundry-products/products/launchpad-lint/.env.production`
 - service file: `/etc/systemd/system/launchpad-lint.service`
 
 ## Install Steps
 
 ```bash
-cd /opt/projects/skillfoundry/skillfoundry-products/products/launchpad-lint
+cd /opt/workspace/projects/skillfoundry/skillfoundry-products/products/launchpad-lint
 python3.12 -m venv .venv
 source .venv/bin/activate
 python3.12 -m pip install -e .[dev]
@@ -48,7 +48,7 @@ systemctl status launchpad-lint
 
 Install the shared gateway first using:
 
-- `/opt/projects/skillfoundry/skillfoundry-products/deploy/REMOTE_PLATFORM.md`
+- `/opt/workspace/projects/skillfoundry/skillfoundry-products/deploy/REMOTE_PLATFORM.md`
 
 The product service itself stays on `127.0.0.1:8010`. The gateway exposes it at:
 

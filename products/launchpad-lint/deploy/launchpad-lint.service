@@ -4,9 +4,9 @@ After=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=/opt/projects/skillfoundry/skillfoundry-products/products/launchpad-lint
-EnvironmentFile=/opt/projects/skillfoundry/skillfoundry-products/products/launchpad-lint/.env.production
-ExecStart=/opt/projects/skillfoundry/skillfoundry-products/products/launchpad-lint/.venv/bin/uvicorn launchpad_lint.app:app --host 127.0.0.1 --port 8010
+WorkingDirectory=/opt/workspace/projects/skillfoundry/skillfoundry-products/products/launchpad-lint
+EnvironmentFile=/opt/workspace/projects/skillfoundry/skillfoundry-products/products/launchpad-lint/.env.production
+ExecStart=/opt/workspace/projects/skillfoundry/skillfoundry-products/products/launchpad-lint/.venv/bin/python -m uvicorn launchpad_lint.app:app --host 127.0.0.1 --port 8010
 Restart=always
 RestartSec=5
 

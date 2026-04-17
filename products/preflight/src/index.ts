@@ -400,8 +400,99 @@ export default {
       return handleMcp(request, env);
     }
 
-    return new Response(
-      `Preflight — MCP server publish readiness checker.\nVersion: ${skillConfig.skillVersion}\n`,
-    );
+    if (url.pathname === "/" || url.pathname === "") {
+      return new Response(LANDING_PAGE_HTML, {
+        headers: { "Content-Type": "text/html; charset=utf-8" },
+      });
+    }
+
+    return new Response("Not found\n", { status: 404 });
   },
 };
+
+// --- Landing page ---
+
+const LANDING_PAGE_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preflight — MCP Server Publish Readiness Checker</title>
+  <meta name="description" content="Check if your MCP server is ready to publish to the npm MCP registry, Smithery, or agenticmarket. Preflight audits server.json, smithery.yaml, and registry rules in seconds.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://skillfoundry.synaplex.ai/products/preflight/">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Preflight",
+    "description": "MCP server publish readiness checker. Validates server.json, smithery.yaml, and registry requirements.",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Any",
+    "url": "https://skillfoundry.synaplex.ai/products/preflight/",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Organization", "name": "Skillfoundry" }
+  }
+  </script>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 760px; margin: 0 auto; padding: 2rem 1rem; color: #1a1a1a; line-height: 1.6; }
+    h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    .tagline { font-size: 1.15rem; color: #444; margin-bottom: 2rem; }
+    h2 { font-size: 1.25rem; margin-top: 2rem; border-bottom: 1px solid #e5e5e5; padding-bottom: 0.4rem; }
+    code, pre { background: #f4f4f4; border-radius: 4px; padding: 0.2em 0.4em; font-size: 0.9rem; }
+    pre { padding: 1rem; overflow-x: auto; }
+    .cta { display: inline-block; background: #1a1a1a; color: #fff; padding: 0.7rem 1.4rem; border-radius: 6px; text-decoration: none; font-weight: 600; margin: 1rem 0; }
+    .verdict-pass { color: #16a34a; font-weight: 600; }
+    .verdict-fix { color: #b45309; font-weight: 600; }
+    footer { margin-top: 3rem; font-size: 0.85rem; color: #888; border-top: 1px solid #e5e5e5; padding-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Preflight</h1>
+  <p class="tagline">Know if your MCP server is ready to publish — before you submit.</p>
+
+  <a class="cta" href="https://skillfoundry.synaplex.ai/products/preflight/mcp/">Try it via MCP →</a>
+
+  <h2>What Preflight checks</h2>
+  <ul>
+    <li><code>server.json</code> schema compliance and required fields</li>
+    <li><code>smithery.yaml</code> presence and structure</li>
+    <li>Registry slug format (npm MCP registry, Smithery, agenticmarket)</li>
+    <li>Version string format and semver compliance</li>
+    <li>Homepage URL presence and reachability flag</li>
+    <li><code>remotes</code> block structure and endpoint format</li>
+    <li><code>package.json</code> fields required for npm publish</li>
+  </ul>
+
+  <h2>Who it's for</h2>
+  <p>Solo MCP builders and small automation agencies preparing a first or updated listing on the npm MCP registry, Smithery, or agenticmarket. If you've ever had a submission rejected for a metadata gap you didn't know was there, Preflight flags it before you submit.</p>
+
+  <h2>How to try it</h2>
+  <p>Preflight is an MCP tool. Connect your MCP client to the endpoint below and call <code>check_publish_readiness</code> with your server artifacts:</p>
+  <pre>MCP endpoint: https://skillfoundry.synaplex.ai/products/preflight/mcp/
+
+Tool: check_publish_readiness
+Parameters:
+  manifest      — contents of your server.json
+  package_json  — contents of your package.json (optional)
+  smithery_yaml — contents of your smithery.yaml (optional)</pre>
+
+  <p>Or use the REST API directly:</p>
+  <pre>curl -X POST https://skillfoundry.synaplex.ai/products/preflight/api/check \\
+  -H "Content-Type: application/json" \\
+  -d '{"manifest": "{...your server.json contents...}"}'</pre>
+
+  <h2>What the verdict means</h2>
+  <p><span class="verdict-pass">checks_pass</span> — your server meets all registry requirements audited. Ready to submit.</p>
+  <p><span class="verdict-fix">fixable</span> — specific gaps found. Preflight returns each failing rule and what to change.</p>
+
+  <h2>The signal it produces</h2>
+  <p>Every check run against live registry rules. When you fix what Preflight flags, your listing passes review. Preflight is updated as registry requirements change.</p>
+
+  <footer>
+    Operated by <a href="https://skillfoundry.synaplex.ai/">Skillfoundry</a>. Not affiliated with any registry.
+    MCP endpoint: <code>https://skillfoundry.synaplex.ai/products/preflight/mcp/</code>
+  </footer>
+</body>
+</html>
+`;
