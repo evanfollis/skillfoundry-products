@@ -7,7 +7,7 @@
  */
 
 import { skillConfig } from "./lib/skill-config.js";
-import { emitTelemetry } from "./lib/telemetry.js";
+import { emitTelemetry, type SourceType } from "./lib/telemetry.js";
 import {
   parseServerJson,
   parsePackageJson,
@@ -239,11 +239,17 @@ async function handleMcp(request: Request, env: Env): Promise<Response> {
   const sessionId = crypto.randomUUID();
   const startedAt = new Date().toISOString();
   const userAgent = request.headers.get("user-agent") ?? undefined;
+  const rawSourceType = request.headers.get("x-source-type") ?? "user";
+  const sourceType: SourceType =
+    rawSourceType === "system" || rawSourceType === "smoke" || rawSourceType === "cron"
+      ? rawSourceType
+      : "user";
 
   emitTelemetry({
     environment: env.ENVIRONMENT ?? "development",
     requestId,
     sessionId,
+    sourceType,
     startedAt,
     type: "session_started",
     userAgent,
@@ -303,6 +309,7 @@ async function handleMcp(request: Request, env: Env): Promise<Response> {
     latencyMs: Date.now() - Date.parse(startedAt),
     requestId,
     sessionId,
+    sourceType,
     startedAt,
     success: true,
     toolName: method,

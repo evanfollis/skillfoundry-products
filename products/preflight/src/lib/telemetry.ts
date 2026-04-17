@@ -6,6 +6,8 @@ export type TelemetryEventName =
   | "session_completed"
   | "session_abandoned";
 
+export type SourceType = "user" | "system" | "smoke" | "cron";
+
 export type TelemetryEvent = {
   environment: string;
   errorCode?: string;
@@ -15,6 +17,7 @@ export type TelemetryEvent = {
   outputSizeBytes?: number;
   requestId: string;
   sessionId: string;
+  sourceType: SourceType;
   startedAt: string;
   success?: boolean;
   toolName?: string;
