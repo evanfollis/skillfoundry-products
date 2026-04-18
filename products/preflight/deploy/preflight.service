@@ -1,0 +1,16 @@
+[Unit]
+Description=Preflight MCP publish readiness checker
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/workspace/projects/skillfoundry/skillfoundry-products/products/preflight
+ExecStart=/usr/bin/node dist/serve.js
+Environment=PORT=8030
+Environment=ENVIRONMENT=production
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

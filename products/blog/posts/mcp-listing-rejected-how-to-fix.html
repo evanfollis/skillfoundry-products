@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why Your MCP Listing Gets Rejected (and How to Fix It Before Submit) &mdash; Skillfoundry</title>
+  <meta name="description" content="Common MCP server listing rejections on Smithery, AgenticMarket, and npm. How to diagnose and fix metadata errors before you submit.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://skillfoundry-blog.pages.dev/posts/mcp-listing-rejected-how-to-fix.html">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <div class="container">
+    <nav><a href="../">Skillfoundry Blog</a></nav>
+
+    <h1>Why Your MCP Listing Gets Rejected (and How to Fix It Before Submit)</h1>
+    <p class="meta">Launchpad Lint by Skillfoundry &middot; April 2026</p>
+
+    <p>You built a working MCP server and submitted it to a registry. Then nothing happened. Or you got a terse rejection with no detail. Or your listing appeared but buried so deep it gets zero traffic.</p>
+
+    <p>Most of these problems trace back to the same small set of metadata errors. Here are the ones we see most often, and how to fix each one.</p>
+
+    <h2>1. Missing or empty homepage field</h2>
+
+    <p>This is the single most common rejection trigger. Registries treat the <code>homepage</code> field in <code>server.json</code> as a signal that your project is maintained and reachable. If it's missing, empty, or points to a 404, many registries will silently deprioritize or reject your listing.</p>
+
+    <p><strong>Fix</strong>: Set <code>homepage</code> to a URL that actually resolves. A GitHub repo URL is fine. A dedicated landing page is better. The URL must return a 200.</p>
+
+    <pre><code>{
+  "name": "my-mcp-server",
+  "homepage": "https://github.com/yourname/my-mcp-server"
+}</code></pre>
+
+    <h2>2. Description too short or too generic</h2>
+
+    <p>A one-word or single-phrase description (<code>"A server"</code>, <code>"MCP tools"</code>) gets flagged by automated quality checks. Registries use your description for search ranking and listing previews. A weak description means bad discoverability even if your listing is accepted.</p>
+
+    <p><strong>Fix</strong>: Write 1-2 sentences that say what your server does for the user. Not what it is &mdash; what problem it solves. Aim for 50-150 characters.</p>
+
+    <pre><code>// Bad
+"description": "MCP server"
+
+// Good
+"description": "Audit MCP server metadata against marketplace listing requirements before you submit."</code></pre>
+
+    <h2>3. Invalid or missing version</h2>
+
+    <p>Version must be valid <a href="https://semver.org/">semver</a>. Formats like <code>1.0</code> (no patch), <code>v1.0.0</code> (leading v), or <code>latest</code> are all invalid. Some registries accept them but display them incorrectly; others reject outright.</p>
+
+    <p><strong>Fix</strong>: Use strict semver: <code>MAJOR.MINOR.PATCH</code>. No prefix, no suffix unless it's a valid pre-release tag.</p>
+
+    <h2>4. smithery.yaml config schema errors</h2>
+
+    <p>If you're publishing to Smithery and your server accepts configuration, the <code>configSchema</code> in <code>smithery.yaml</code> must be valid JSON Schema. Common mistakes:</p>
+
+    <ul>
+      <li>Using <code>required: true</code> on a property instead of a top-level <code>required</code> array</li>
+      <li>Missing <code>type</code> on properties</li>
+      <li>Referencing <code>$ref</code> paths that don't resolve</li>
+    </ul>
+
+    <p><strong>Fix</strong>: Validate your schema with any JSON Schema validator. The schema needs to be valid Draft-07 or later.</p>
+
+    <h2>5. Slug conflicts and naming issues</h2>
+
+    <p>Package names that contain uppercase letters, spaces, or special characters outside of hyphens will fail slug generation on most registries. Less obvious: your desired name might already be taken by a different package, in which case you get a silent collision or a confusing error.</p>
+
+    <p><strong>Fix</strong>: Use lowercase-hyphenated names. Check the registry's existing listings before choosing your name.</p>
+
+    <h2>Catch these automatically</h2>
+
+    <p>All five of these errors are mechanical &mdash; they can be detected before you submit. <a href="https://preflight.skillfoundry.workers.dev/">Preflight</a> checks your server package against live registry rules and tells you exactly what's wrong.</p>
+
+    <p>For a deeper audit that covers marketplace positioning, trust signals, and submission strategy, <a href="https://lci.skillfoundry.pages.dev/">Launch Compliance Intelligence</a> provides an expert manual review.</p>
+
+    <a href="https://preflight.skillfoundry.workers.dev/" class="cta">Audit your listing with Preflight</a>
+
+    <footer>
+      <p>Built by <a href="#">Skillfoundry</a>. Tools for MCP builders.</p>
+    </footer>
+  </div>
+</body>
+</html>

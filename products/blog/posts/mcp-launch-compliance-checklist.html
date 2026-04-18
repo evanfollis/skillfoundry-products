@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The MCP Launch Compliance Checklist You Didn't Know You Needed &mdash; Skillfoundry</title>
+  <meta name="description" content="Beyond code quality: the trust signals, metadata, and packaging requirements MCP registries check before accepting your server listing.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://skillfoundry-blog.pages.dev/posts/mcp-launch-compliance-checklist.html">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <div class="container">
+    <nav><a href="../">Skillfoundry Blog</a></nav>
+
+    <h1>The MCP Launch Compliance Checklist You Didn't Know You Needed</h1>
+    <p class="meta">Launch Compliance by Skillfoundry &middot; April 2026</p>
+
+    <p>Your MCP server works. Your tests pass. Your README is clean. But when you submit to a registry, the review process checks things that have nothing to do with whether your code runs.</p>
+
+    <p>Registries care about trust. They care about discoverability. They care about whether users who install your server will have a good experience. That means they check a layer of compliance that most builders never think about until their listing is rejected or buried.</p>
+
+    <p>Here's the checklist.</p>
+
+    <h2>Metadata completeness</h2>
+
+    <ul>
+      <li><strong>server.json</strong> has <code>name</code>, <code>description</code> (50+ chars), <code>version</code> (valid semver), and <code>homepage</code> (resolves to 200)</li>
+      <li><strong>Package name</strong> is lowercase-hyphenated, unique on target registry</li>
+      <li><strong>smithery.yaml</strong> (if targeting Smithery) has valid <code>startCommand</code> and <code>configSchema</code></li>
+      <li><strong>README.md</strong> exists and explains what the server does, how to install, and how to configure</li>
+    </ul>
+
+    <h2>Trust signals</h2>
+
+    <p>Registries increasingly weigh trust signals when ranking listings. These aren't always explicit requirements, but their absence affects your visibility:</p>
+
+    <ul>
+      <li><strong>License field</strong>: Present and set to a recognized SPDX identifier. Unlicensed servers are deprioritized in most registries.</li>
+      <li><strong>Repository URL</strong>: Points to a public repo. Registries check that it exists and is accessible.</li>
+      <li><strong>Author or maintainer field</strong>: A named maintainer signals accountability. Anonymous packages rank lower.</li>
+      <li><strong>Changelog or release history</strong>: Shows the server is actively maintained. A single commit with no history is a weak signal.</li>
+    </ul>
+
+    <h2>Runtime packaging</h2>
+
+    <ul>
+      <li><strong>Entry point works from a clean install</strong>: <code>npm install && npm start</code> (or equivalent) must succeed without manual setup steps, local secrets, or environment-specific paths.</li>
+      <li><strong>No hardcoded secrets or local paths</strong>: Registries scan for <code>.env</code> references, hardcoded API keys, and absolute filesystem paths. Even if they don't reject on this, automated security scanners flag it.</li>
+      <li><strong>Dockerfile (if applicable)</strong> builds in CI: If your server ships a Dockerfile, it must build without local context. Smithery builds from source &mdash; a Dockerfile that assumes local volumes or host networking will fail.</li>
+    </ul>
+
+    <h2>Configuration schema</h2>
+
+    <ul>
+      <li><strong>Valid JSON Schema</strong> for any user-facing configuration. Not a type description &mdash; actual JSON Schema that a UI can render.</li>
+      <li><strong>Sensible defaults</strong> for optional fields. A config schema with 15 required fields and no defaults creates a terrible onboarding experience.</li>
+      <li><strong>Documented environment variables</strong> if the server reads from <code>process.env</code>. Undocumented env vars are invisible to registry UIs.</li>
+    </ul>
+
+    <h2>Registry-specific rules</h2>
+
+    <p>Each registry has quirks:</p>
+
+    <ul>
+      <li><strong>Smithery</strong>: Requires <code>smithery.yaml</code>. Builds from source. Config schema must be valid or the listing page breaks.</li>
+      <li><strong>AgenticMarket</strong>: Description length limits. Tag structure matters for category placement. Homepage field is prominently displayed.</li>
+      <li><strong>npm MCP registry</strong>: Standard npm publishing rules apply. Scoped packages (<code>@org/name</code>) need organization access. Version conflicts block publish.</li>
+    </ul>
+
+    <h2>The gap between "it works" and "it's ready"</h2>
+
+    <p>Most MCP builders are strong on the code side. The compliance gap is in the packaging, metadata, and trust layer &mdash; the things registries check that have nothing to do with whether your tools work.</p>
+
+    <p>Automated tools like <a href="https://preflight.skillfoundry.workers.dev/">Preflight</a> catch the mechanical issues: missing fields, invalid schemas, broken URLs. For the full picture &mdash; trust signals, positioning, registry-specific strategy &mdash; a <a href="https://lci.skillfoundry.pages.dev/">manual compliance review</a> covers what automation can't reach.</p>
+
+    <a href="https://lci.skillfoundry.pages.dev/" class="cta">Request a compliance review</a>
+
+    <footer>
+      <p>Built by <a href="#">Skillfoundry</a>. Tools for MCP builders.</p>
+    </footer>
+  </div>
+</body>
+</html>

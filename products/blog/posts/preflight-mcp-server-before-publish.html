@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to Pre-Flight Your MCP Server Before Publish &mdash; Skillfoundry</title>
+  <meta name="description" content="Step-by-step guide to pre-flight checks for MCP servers. Validate server.json, smithery.yaml, and registry rules before you submit your listing.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://skillfoundry-blog.pages.dev/posts/preflight-mcp-server-before-publish.html">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <div class="container">
+    <nav><a href="../">Skillfoundry Blog</a></nav>
+
+    <h1>How to Pre-Flight Your MCP Server Before Publish</h1>
+    <p class="meta">Preflight by Skillfoundry &middot; April 2026</p>
+
+    <p>You've built an MCP server. It works locally. You're ready to list it on Smithery, AgenticMarket, or the npm MCP registry. But before you hit submit, there's a set of checks that every registry runs &mdash; and most builders don't know about them until their listing gets rejected.</p>
+
+    <p>This guide walks through each check and how to make sure your server passes.</p>
+
+    <h2>1. server.json &mdash; the file registries actually parse</h2>
+
+    <p>Your <code>server.json</code> is the single most important file for registry listing. It's not just metadata &mdash; registries use it to decide whether to accept, surface, or rank your server. Here's what gets checked:</p>
+
+    <ul>
+      <li><strong>name</strong>: Must be present, non-empty, and match your package name. Registries reject mismatches silently.</li>
+      <li><strong>description</strong>: Most registries require at least 20 characters. One-word descriptions get flagged. Describe what the server does for the user, not what it is internally.</li>
+      <li><strong>version</strong>: Must be valid semver. Pre-release tags (e.g. <code>0.1.0-beta</code>) are accepted but may be deprioritized in search.</li>
+      <li><strong>homepage</strong>: A working URL. This isn't optional &mdash; registries that auto-generate listing pages pull the homepage link prominently. A 404 or missing homepage field is a common rejection trigger.</li>
+    </ul>
+
+    <h2>2. smithery.yaml &mdash; if you're targeting Smithery</h2>
+
+    <p>Smithery has its own configuration format. If you're publishing there, the <code>smithery.yaml</code> file tells Smithery how to build and run your server. Key requirements:</p>
+
+    <ul>
+      <li><strong>startCommand</strong>: The exact command to start your server. Not <code>npm start</code> if your actual entrypoint is different.</li>
+      <li><strong>configSchema</strong>: If your server accepts configuration, the schema must be valid JSON Schema. An invalid schema doesn't just get rejected &mdash; it prevents the configuration UI from rendering.</li>
+      <li><strong>Build context</strong>: Smithery builds your server from source. If your Dockerfile or build script assumes local paths or secrets, it will fail in Smithery's build environment.</li>
+    </ul>
+
+    <h2>3. Registry slug and naming rules</h2>
+
+    <p>Each registry has its own slug rules. Smithery derives a slug from your package name. AgenticMarket lets you set one. The npm MCP registry uses the npm package name directly. Common problems:</p>
+
+    <ul>
+      <li>Slug collisions &mdash; someone already has your name.</li>
+      <li>Invalid characters &mdash; underscores, spaces, or uppercase in slugs that require lowercase-hyphenated format.</li>
+      <li>Mismatched slugs across registries &mdash; not a rejection, but it fragments your discoverability.</li>
+    </ul>
+
+    <h2>4. The checks automated tools can run for you</h2>
+
+    <p>Some of these checks are mechanical &mdash; does the field exist, is the URL live, is the schema valid. These are exactly the checks that <a href="https://preflight.skillfoundry.workers.dev/">Preflight</a> runs automatically.</p>
+
+    <p>Preflight is an MCP tool that audits your server package against live registry rules. You pass it your <code>server.json</code> (and optionally <code>smithery.yaml</code>), and it returns a verdict: either <code>checks_pass</code> or <code>fixable</code> with specific rules flagged and fixes prioritized.</p>
+
+    <pre><code># Example: check your server via curl
+curl -X POST https://preflight.skillfoundry.workers.dev/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"method":"tools/call","params":{"name":"preflight_check","arguments":{"server_json_url":"https://your-server.com/server.json"}}}'</code></pre>
+
+    <h2>5. What to do when checks fail</h2>
+
+    <p>Fix the specific field that's flagged. Re-run the check. Don't submit until you see <code>checks_pass</code>. Registry reviewers (human or automated) see exactly the same issues &mdash; submitting with known failures wastes your time and theirs.</p>
+
+    <p>For issues that automated checks can't catch &mdash; trust signals, packaging edge cases, or registry-specific quirks &mdash; a <a href="https://lci.skillfoundry.pages.dev/">manual compliance review</a> catches what tooling misses.</p>
+
+    <a href="https://preflight.skillfoundry.workers.dev/" class="cta">Check your server with Preflight</a>
+
+    <footer>
+      <p>Built by <a href="#">Skillfoundry</a>. Tools for MCP builders.</p>
+    </footer>
+  </div>
+</body>
+</html>
