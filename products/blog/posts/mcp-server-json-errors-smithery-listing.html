@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MCP server.json Errors That Block Your Smithery Listing &mdash; Skillfoundry</title>
+  <meta name="description" content="The specific server.json fields that cause Smithery listing rejections, what each error means, and exactly how to fix it before you submit.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://skillfoundry-blog.pages.dev/posts/mcp-server-json-errors-smithery-listing.html">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <div class="container">
+    <nav><a href="../">Skillfoundry Blog</a></nav>
+
+    <h1>MCP server.json Errors That Block Your Smithery Listing</h1>
+    <p class="meta">Preflight by Skillfoundry &middot; April 2026</p>
+
+    <p>Smithery processes your <code>server.json</code> before it processes anything else. If the file fails validation, your listing doesn't get reviewed &mdash; it gets silently dropped or returns an error page with no actionable detail. Most builders discover this after the fact.</p>
+
+    <p>These are the specific errors that appear most often, what Smithery is actually checking, and what to change.</p>
+
+    <h2>1. Missing or malformed <code>remotes</code> block</h2>
+
+    <p>Smithery requires a <code>remotes</code> array containing at least one entry with <code>type: "streamable-http"</code>. If this block is absent or uses a deprecated transport type, the listing fails.</p>
+
+    <p>Failing example:</p>
+    <pre><code>{
+  "name": "io.github.you/my-server",
+  "version": "0.1.0",
+  "remotes": [
+    { "type": "http", "url": "https://example.com/mcp/" }
+  ]
+}</code></pre>
+
+    <p><code>type: "http"</code> is not the current transport identifier. The correct value is <code>streamable-http</code>.</p>
+
+    <p>Passing:</p>
+    <pre><code>{
+  "remotes": [
+    { "type": "streamable-http", "url": "https://example.com/mcp/" }
+  ]
+}</code></pre>
+
+    <h2>2. <code>name</code> format doesn't match Smithery's slug expectations</h2>
+
+    <p>Smithery derives a listing slug from the <code>name</code> field in <code>server.json</code>. It expects the reverse-DNS format used by the MCP Registry: <code>io.github.yourhandle/your-server</code>. Names that use npm-style scopes (<code>@scope/package</code>), plain names (<code>my-server</code>), or mismatched casing fail validation or produce a slug that conflicts with an existing listing.</p>
+
+    <p>The <code>name</code> must:</p>
+    <ul>
+      <li>Use the reverse-DNS prefix matching your GitHub handle: <code>io.github.yourhandle/</code></li>
+      <li>Use lowercase-hyphenated form for the package segment</li>
+      <li>Match the <code>name</code> field in your npm <code>package.json</code> if you're cross-listing</li>
+    </ul>
+
+    <h2>3. <code>description</code> too short or generic</h2>
+
+    <p>Smithery displays the description prominently in search results. Descriptions under 20 characters are rejected outright. Descriptions that describe the implementation rather than what the tool does for a user are accepted but rank poorly.</p>
+
+    <p>Rejected: <code>"MCP server"</code>, <code>"A tool."</code>, <code>"Does stuff."</code></p>
+
+    <p>Acceptable: <code>"Validates your MCP server against live registry rules before you publish."</code></p>
+
+    <p>The description should answer: <em>what does this server do for the person using it?</em></p>
+
+    <h2>4. <code>version</code> not valid semver</h2>
+
+    <p>Smithery accepts semver strings. Non-semver values (<code>"v1"</code>, <code>"1.0"</code>, <code>"latest"</code>, <code>"dev"</code>) fail validation. Pre-release labels (<code>"0.1.0-beta.1"</code>) are valid semver and pass, but may be sorted below stable releases in search.</p>
+
+    <h2>5. <code>homepage</code> field absent or a 404</h2>
+
+    <p>Smithery surfaces the homepage URL prominently in your listing. If the field is missing, the listing is still created in some cases, but it fails quality gates and may not be indexed. If the URL is present but returns a non-200 status, Smithery's crawler flags it as a trust signal failure.</p>
+
+    <p>What passes: a reachable URL (your GitHub repo, a project page, or a simple landing page). The URL must respond with 200 at submission time.</p>
+
+    <h2>6. <code>smithery.yaml</code> <code>startCommand</code> missing or broken</h2>
+
+    <p>If you include a <code>smithery.yaml</code>, Smithery uses it to build and start your server. A missing <code>startCommand</code> or a command that assumes local environment variables without a <code>configSchema</code> entry will fail Smithery's build environment. This doesn't affect the <code>server.json</code> submission gate directly, but it blocks listing activation after approval.</p>
+
+    <p>The <code>configSchema</code> must document every environment variable your server requires at startup. Smithery generates a configuration UI from this schema &mdash; undocumented required variables cause runtime failures that appear as listing errors to users.</p>
+
+    <h2>How to check before you submit</h2>
+
+    <p>Preflight validates all of the above before you submit. Connect your MCP client to the endpoint and run <code>check_publish_readiness</code> with your <code>server.json</code>, <code>smithery.yaml</code>, and <code>package.json</code>:</p>
+
+    <pre><code>curl -X POST https://skillfoundry.synaplex.ai/products/preflight/api/check \
+  -H "Content-Type: application/json" \
+  -d '{
+    "manifest": "{...server.json contents...}",
+    "smithery_yaml": "{...smithery.yaml contents...}",
+    "target_directories": ["smithery"]
+  }'</code></pre>
+
+    <p>Each failing rule returns a specific finding with what to change. Fix the findings, re-run, verify <code>verdict: checks_pass</code> before submitting.</p>
+
+    <a class="cta" href="https://skillfoundry.synaplex.ai/products/preflight/">Try Preflight &rarr;</a>
+
+    <footer>
+      <p>Preflight is operated by <a href="https://skillfoundry.synaplex.ai/">Skillfoundry</a>. Not affiliated with Smithery or any registry.</p>
+    </footer>
+  </div>
+</body>
+</html>
