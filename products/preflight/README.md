@@ -4,6 +4,19 @@
 
 Preflight checks your server's actual artifacts — `server.json`, `package.json`, `smithery.yaml` — against the documented requirements of the MCP Registry, Smithery, and npm. Every finding includes the evidence found, the directory rule it maps to, and the exact fix.
 
+## Try it live
+
+- **Live demo / landing:** <https://skillfoundry.synaplex.ai/products/preflight/> (direct origin: <https://preflight.skillfoundry.workers.dev/>)
+- **One-shot check** — paste a `server.json` and get a real verdict back:
+
+  ```bash
+  curl -X POST https://skillfoundry.synaplex.ai/products/preflight/api/check \
+    -H 'Content-Type: application/json' \
+    -d '{"manifest":"{\"name\":\"io.github.you/your-server\",\"description\":\"demo\",\"version\":\"1.0.0\",\"packages\":[{\"registryType\":\"npm\",\"identifier\":\"@you/your-server\",\"transport\":{\"type\":\"stdio\"}}]}"}'
+  ```
+
+**Status:** live and serving. Deployed as a Cloudflare Worker; health at [`/health`](https://skillfoundry.synaplex.ai/products/preflight/health). Current scope is static artifact linting against versioned policy packs — live endpoint probing (TLS, transport negotiation, tool listing) is **not yet** implemented and is reported honestly under `notChecked` in every response.
+
 ## What it checks
 
 | Directory | Hard requirements verified |
