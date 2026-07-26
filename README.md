@@ -3,6 +3,21 @@
 `skillfoundry-products` is the implementation repository for the probes, mechanisms,
 and offerings that Skillfoundry builds and operates.
 
+**Lifecycle:** active. This monorepo is the canonical source for its maintained
+products, including Preflight.
+
+**Verified today:** TypeScript workspace checks and both Python suites run
+through the root gate. Registry publication is separate and occurs only from
+pinned, checksum-verified OIDC workflows.
+
+```bash
+make setup
+make check
+```
+
+See [docs/architecture.md](docs/architecture.md) for ownership boundaries,
+artifact roles, and dated migration exceptions.
+
 This repo has two different lanes on purpose:
 
 - `mechanisms/`: internal factory tools that help Skillfoundry identify, design, and
