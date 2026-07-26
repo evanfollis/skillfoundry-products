@@ -3,9 +3,9 @@
   "name": "io.github.evanfollis/preflight",
   "title": "Preflight",
   "description": "Check if your MCP server is ready to publish on the MCP Registry, Smithery, or npm.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "repository": {
-    "url": "https://github.com/evanfollis/preflight",
+    "url": "https://github.com/evanfollis/skillfoundry-products",
     "source": "github"
   },
   "remotes": [
