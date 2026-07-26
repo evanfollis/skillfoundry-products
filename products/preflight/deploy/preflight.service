@@ -6,7 +6,8 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=/opt/workspace/projects/skillfoundry/skillfoundry-products/products/preflight
-ExecStart=/usr/bin/node dist/serve.js
+ExecStartPre=/opt/workspace/projects/skillfoundry/skillfoundry-products/products/preflight/deploy/verify_node_runtime.sh
+ExecStart=/opt/workspace/runtime/toolchains/node-v24.18.0-linux-x64/bin/node dist/serve.js
 Environment=PORT=8030
 Environment=ENVIRONMENT=production
 Restart=on-failure

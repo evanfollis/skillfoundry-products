@@ -21,6 +21,7 @@ check:
 	corepack pnpm -r --if-present check
 	$(PYTHON) -m pytest -q products/launchpad-lint/tests
 	$(PYTHON) -m pytest -q mechanisms/bottleneck-radar/tests
+	$(MAKE) deploy-check
 	git diff --check
 
 test:
@@ -38,3 +39,7 @@ deploy-check:
 	test -f products/preflight/server.json
 	test -f .github/workflows/publish-launchpad-lint-mcp.yml
 	test -f .github/workflows/publish-preflight-mcp.yml
+	test -x products/preflight/deploy/verify_node_runtime.sh
+	/bin/sh -n products/preflight/deploy/verify_node_runtime.sh
+	grep -Fqx 'ExecStartPre=/opt/workspace/projects/skillfoundry/skillfoundry-products/products/preflight/deploy/verify_node_runtime.sh' products/preflight/deploy/preflight.service
+	grep -Fqx 'ExecStart=/opt/workspace/runtime/toolchains/node-v24.18.0-linux-x64/bin/node dist/serve.js' products/preflight/deploy/preflight.service
