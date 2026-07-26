@@ -6,23 +6,40 @@ on:
     tags:
       - "launchpad-lint-v*"
 
+# Least privilege at the workflow level; the publish job widens only to the
+# id-token needed for MCP Registry GitHub-OIDC auth.
+permissions:
+  contents: read
+
 jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
-      contents: read
+      id-token: write   # MCP Registry github-oidc login
+      contents: read    # checkout
     defaults:
       run:
         working-directory: products/launchpad-lint
 
+    env:
+      # Pinned, checksum-verified mcp-publisher (ADR-0050 §11: no `latest`, no
+      # unverified download). Bump both together from the release's checksums
+      # file: registry_<version>_checksums.txt.
+      MCP_PUBLISHER_VERSION: "1.8.0"
+      MCP_PUBLISHER_SHA256: "1370446bbe74d562608e8005a6ccce02d146a661fbd78674e11cc70b9618d6cf"
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
-      - name: Install mcp-publisher
+      - name: Install mcp-publisher (pinned + checksum-verified)
         run: |
-          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+          set -euo pipefail
+          url="https://github.com/modelcontextprotocol/registry/releases/download/v${MCP_PUBLISHER_VERSION}/mcp-publisher_linux_amd64.tar.gz"
+          curl -fsSL "$url" -o mcp-publisher.tar.gz
+          echo "${MCP_PUBLISHER_SHA256}  mcp-publisher.tar.gz" | sha256sum -c -
+          tar xzf mcp-publisher.tar.gz mcp-publisher
+          ./mcp-publisher --version || true
 
       - name: Authenticate to MCP Registry with GitHub OIDC
         run: ./mcp-publisher login github-oidc
