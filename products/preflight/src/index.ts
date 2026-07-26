@@ -433,6 +433,8 @@ const LANDING_PAGE_HTML = `<!DOCTYPE html>
     "description": "MCP server publish readiness checker. Validates server.json, smithery.yaml, and registry requirements.",
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "Any",
+    "softwareVersion": "${skillConfig.skillVersion}",
+    "codeRepository": "https://github.com/evanfollis/skillfoundry-products",
     "url": "https://skillfoundry.synaplex.ai/products/preflight/",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
     "author": { "@type": "Organization", "name": "Skillfoundry" }
@@ -494,6 +496,8 @@ Parameters:
   <p>Every check run against live registry rules. When you fix what Preflight flags, your listing passes review. Preflight is updated as registry requirements change.</p>
 
   <footer>
+    Preflight v${skillConfig.skillVersion} ·
+    <a href="https://github.com/evanfollis/skillfoundry-products/tree/main/products/preflight">source repository</a> ·
     Operated by <a href="https://skillfoundry.synaplex.ai/">Skillfoundry</a>. Not affiliated with any registry.
     MCP endpoint: <code>https://skillfoundry.synaplex.ai/products/preflight/mcp/</code>
   </footer>
