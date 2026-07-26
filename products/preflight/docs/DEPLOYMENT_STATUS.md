@@ -26,7 +26,12 @@ runtime routes, and registry identities.
   Skillfoundry hostname.
 - Direct origin: the same `src/index.ts` Worker entry point is deployed to
   `preflight.skillfoundry.workers.dev`.
-- Local service: `preflight.service`, enabled with restart-on-failure.
+- Local service: `preflight.service`, enabled with restart-on-failure and
+  executing the checksum-verified Node.js v24.18.0 binary at
+  `/opt/workspace/runtime/toolchains/node-v24.18.0-linux-x64/bin/node`.
+- Runtime preflight: `deploy/verify_node_runtime.sh` fails closed unless the
+  installed binary reports v24.18.0 and matches the repository-pinned binary
+  SHA-256.
 - The standalone `evanfollis/preflight` repository is archived lineage and is
   not a release source.
 
@@ -56,9 +61,12 @@ on both serving surfaces:
 
 1. merge only after `make check` and protected GitHub checks pass;
 2. deploy the Worker from `products/preflight/wrangler.toml`;
-3. compile the Node build, retain the prior `dist/`, sync the new build, and
-   restart `preflight.service`;
-4. externally verify the landing page, health response, manifest, and MCP
+3. canary the unchanged Node build on a spare port under the exact runtime
+   declared by `deploy/preflight.service`, then stop it and exercise rollback
+   under the previously installed runtime;
+4. retain the prior unit and `dist/`, atomically install the tracked unit,
+   daemon-reload, and restart `preflight.service`;
+5. externally verify the landing page, health response, manifest, and MCP
    `initialize` response on both public surfaces.
 
 Worker releases are versioned by Cloudflare and can be rolled back with
