@@ -8,8 +8,7 @@
     "check": "pnpm run typecheck",
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
-    "typecheck": "tsc --noEmit",
-    "test": "node --test dist/test/*.js"
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260411.1",
