@@ -19,7 +19,7 @@ export const skillConfig: SkillConfig = {
   targetEvidenceClass: "behavioral_signal",
   minimumEvidenceQuality: "moderate",
   skillSlug: "preflight",
-  skillVersion: "0.1.0",
+  skillVersion: "0.1.1",
   description:
     "Validate whether an MCP server is publishable on real directories (MCP Registry, Smithery, npm).",
   activationMetric:
