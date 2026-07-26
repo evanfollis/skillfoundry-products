@@ -1,5 +1,7 @@
 .PHONY: help setup check test typecheck build deploy-check
 
+PYTHON := $(shell test -x .venv/bin/python && printf '%s' .venv/bin/python || command -v python3)
+
 help:
 	@printf '%s\n' \
 		'make setup        Install locked TypeScript and Python development dependencies' \
@@ -11,18 +13,19 @@ help:
 
 setup:
 	corepack pnpm install --frozen-lockfile
-	python3 -m pip install -e "products/launchpad-lint[dev]" -e "mechanisms/bottleneck-radar[dev]"
+	@test -x .venv/bin/python || python3 -m venv .venv
+	.venv/bin/python -m pip install -e "products/launchpad-lint[dev]" -e "mechanisms/bottleneck-radar[dev]"
 
 check:
-	@python3 -c 'import pathlib,tomllib; r=pathlib.Path("."); d=tomllib.loads((r/"repo.toml").read_text()); assert d["schema_version"] == 1 and d["shape"] == "monorepo"; [(_ for _ in ()).throw(AssertionError(f"missing {p}")) for p in ("README.md","repo.toml","Makefile","AGENTS.md","CLAUDE.md","docs/architecture.md") if not (r/p).exists()]'
+	@$(PYTHON) -c 'import pathlib,tomllib; r=pathlib.Path("."); d=tomllib.loads((r/"repo.toml").read_text()); assert d["schema_version"] == 1 and d["shape"] == "monorepo"; [(_ for _ in ()).throw(AssertionError(f"missing {p}")) for p in ("README.md","repo.toml","Makefile","AGENTS.md","CLAUDE.md","docs/architecture.md") if not (r/p).exists()]'
 	corepack pnpm -r --if-present check
-	python3 -m pytest -q products/launchpad-lint/tests
-	python3 -m pytest -q mechanisms/bottleneck-radar/tests
+	$(PYTHON) -m pytest -q products/launchpad-lint/tests
+	$(PYTHON) -m pytest -q mechanisms/bottleneck-radar/tests
 	git diff --check
 
 test:
-	python3 -m pytest -q products/launchpad-lint/tests
-	python3 -m pytest -q mechanisms/bottleneck-radar/tests
+	$(PYTHON) -m pytest -q products/launchpad-lint/tests
+	$(PYTHON) -m pytest -q mechanisms/bottleneck-radar/tests
 
 typecheck:
 	corepack pnpm -r --if-present typecheck
