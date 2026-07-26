@@ -366,6 +366,10 @@ export default {
         title: "Preflight",
         description: "Check if your MCP server is ready to publish on the MCP Registry, Smithery, or npm.",
         version: skillConfig.skillVersion,
+        repository: {
+          url: "https://github.com/evanfollis/skillfoundry-products",
+          source: "github",
+        },
         remotes: [
           {
             type: "streamable-http",
