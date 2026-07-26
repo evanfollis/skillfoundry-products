@@ -27,3 +27,10 @@ Python dependency ranges are not yet represented by a cross-platform lock;
 TypeScript dependencies are locked in `pnpm-lock.yaml`. Owner: Skillfoundry
 products. Milestone: adopt and CI-verify a Python lock before claiming complete
 supply-chain conformance.
+
+The July 2026 TypeScript toolchain uses TypeScript 7.0.2 and Cloudflare Workers
+types 5.20260726.1. Preflight's Node declarations intentionally stay on the
+current `@types/node` 24 line because its installed production runtime is the
+checksum-verified Node.js 24.18.0 binary; newer declaration majors do not define
+the deployed runtime contract. The remote-skill template uses Zod 4.4.3, which
+is inside MCP SDK 1.29's declared `^3.25 || ^4.0` peer range.
