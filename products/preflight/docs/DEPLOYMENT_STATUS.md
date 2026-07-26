@@ -1,70 +1,69 @@
 # Preflight Deployment Status
 
-## Live Endpoints
+Verified on 2026-07-26 at release `0.1.1`.
 
-All responding as of 2026-04-11:
+## Live endpoints
 
-| Endpoint | URL | Status |
-|----------|-----|--------|
-| Health | `https://skillfoundry.synaplex.ai/products/preflight/health` | live |
+| Endpoint | URL | Verified identity |
+|----------|-----|-------------------|
+| Landing page | `https://skillfoundry.synaplex.ai/products/preflight/` | v0.1.1 and canonical source link |
+| Health | `https://skillfoundry.synaplex.ai/products/preflight/health` | v0.1.1 |
 | REST API | `https://skillfoundry.synaplex.ai/products/preflight/api/check` | live |
-| MCP JSON-RPC | `https://skillfoundry.synaplex.ai/products/preflight/mcp/` | live |
-| Registry manifest | `https://skillfoundry.synaplex.ai/products/preflight/server.json` | live |
-| Server card | `https://skillfoundry.synaplex.ai/products/preflight/.well-known/mcp/server-card.json` | live |
+| MCP JSON-RPC | `https://skillfoundry.synaplex.ai/products/preflight/mcp/` | `preflight` v0.1.1 |
+| Registry manifest | `https://skillfoundry.synaplex.ai/products/preflight/server.json` | v0.1.1 and canonical repository |
+| Server card | `https://skillfoundry.synaplex.ai/products/preflight/.well-known/mcp/server-card.json` | v0.1.1 |
+| Direct Worker origin | `https://preflight.skillfoundry.workers.dev/` | v0.1.1 and canonical source link |
 
-## Infrastructure
+Preflight and Launchpad Lint are separate products with separate manifests,
+runtime routes, and registry identities.
 
-- Runs as Node.js process on Hetzner CPX31 (port 8030)
-- Behind nginx gateway (port 8020) + Cloudflare Tunnel
-- systemd service: `preflight.service` (enabled, auto-restart)
-- 8MB memory footprint, <1ms response latency
+## Source and runtime ownership
 
-## Distribution Channels
+- Canonical source: `skillfoundry-products/products/preflight`
+- Canonical repository: `https://github.com/evanfollis/skillfoundry-products`
+- Canonical public route: nginx on `127.0.0.1:8020` proxies the Preflight path
+  to a Node process on `127.0.0.1:8030`; Cloudflare Tunnel publishes the
+  Skillfoundry hostname.
+- Direct origin: the same `src/index.ts` Worker entry point is deployed to
+  `preflight.skillfoundry.workers.dev`.
+- Local service: `preflight.service`, enabled with restart-on-failure.
+- The standalone `evanfollis/preflight` repository is archived lineage and is
+  not a release source.
+
+## Distribution status
 
 ### MCP Registry
-- **Status:** server.json validated, ready to publish
-- **Server name:** `io.github.evanfollis/preflight`
-- **Remaining step:** Run these commands:
-  ```bash
-  cd /opt/workspace/projects/skillfoundry/skillfoundry-products/products/preflight
-  mcp-publisher login github
-  # Browser: go to https://github.com/login/device, enter the displayed code
-  mcp-publisher publish
-  ```
+
+- **Published:** `io.github.evanfollis/preflight` v0.1.1
+- **Publisher source:** the pinned, GitHub-OIDC workflow in this monorepo
+- **Manifest repository:** `https://github.com/evanfollis/skillfoundry-products`
 - **Verify:** `curl "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.evanfollis/preflight"`
 
 ### Smithery
-- **Status:** Streamable HTTP transport ready, server-card served
-- **Remaining step:** Go to https://smithery.ai/new and enter:
-  ```
-  https://skillfoundry.synaplex.ai/products/preflight/mcp/
-  ```
-  Complete the publishing flow in browser.
 
-### GitHub (public repo)
-- **Status:** Standalone repo prepared at `/tmp/tmp.xKxpNBTw9C/preflight/`
-- **Remaining steps:**
-  1. Create repo at https://github.com/new → name: `preflight`, public, no template
-  2. Then:
-     ```bash
-     cd /tmp/tmp.xKxpNBTw9C/preflight
-     GIT_SSH_COMMAND="ssh -i /root/.ssh/github" git remote add origin git@github.com:evanfollis/preflight.git
-     GIT_SSH_COMMAND="ssh -i /root/.ssh/github" git push -u origin main
-     ```
-- **Alternative:** Authenticate `gh` CLI:
-  ```bash
-  gh auth login
-  gh repo create evanfollis/preflight --public --source=/tmp/tmp.xKxpNBTw9C/preflight --push
-  ```
+- The Streamable HTTP endpoint and server card are live.
+- Listing status is not attested in this document.
 
 ### npm
-- **Status:** Not yet configured (package is private in package.json)
-- **Remaining steps:** Change `"private": true` to `false`, add `"bin"` field, `npm publish --access public`
-- **Note:** npm distribution is lower priority since Preflight is a remote server, not a CLI tool
 
-## What's Automated
+- The package remains private intentionally. Preflight is operated as a remote
+  MCP/REST service, not claimed as a published CLI.
 
-- Service auto-restarts on failure (systemd)
-- Nginx reloads preserve routing
-- Code changes: edit src → `npx tsc` → `systemctl restart preflight`
-- Products repo pushes update GitHub: `cd /opt/workspace/projects/skillfoundry/skillfoundry-products && git push`
+## Release and rollback
+
+A push or merge is not itself a deployment. The current release path is manual
+on both serving surfaces:
+
+1. merge only after `make check` and protected GitHub checks pass;
+2. deploy the Worker from `products/preflight/wrangler.toml`;
+3. compile the Node build, retain the prior `dist/`, sync the new build, and
+   restart `preflight.service`;
+4. externally verify the landing page, health response, manifest, and MCP
+   `initialize` response on both public surfaces.
+
+Worker releases are versioned by Cloudflare and can be rolled back with
+`wrangler rollback <version-id>`. The systemd-backed build rolls back by
+restoring the retained prior `dist/` and restarting `preflight.service`.
+
+The absence of an automated dual-runtime deploy pipeline is an explicit
+operational gap; do not infer deployed state from Git or CI state.

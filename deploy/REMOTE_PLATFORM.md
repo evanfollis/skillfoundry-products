@@ -7,10 +7,12 @@ The canonical external surface is:
 - platform host: `skillfoundry.synaplex.ai`
 - product route shape: `/products/<product-slug>/...`
 
-For `launchpad-lint`, the canonical external URLs are:
+Canonical product URLs include:
 
 - `https://skillfoundry.synaplex.ai/products/launchpad-lint/health`
-- `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp`
+- `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp/`
+- `https://skillfoundry.synaplex.ai/products/preflight/health`
+- `https://skillfoundry.synaplex.ai/products/preflight/mcp/`
 
 ## Gateway Runtime
 
