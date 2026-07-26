@@ -15,7 +15,13 @@ Preflight checks your server's actual artifacts — `server.json`, `package.json
     -d '{"manifest":"{\"name\":\"io.github.you/your-server\",\"description\":\"demo\",\"version\":\"1.0.0\",\"packages\":[{\"registryType\":\"npm\",\"identifier\":\"@you/your-server\",\"transport\":{\"type\":\"stdio\"}}]}"}'
   ```
 
-**Status:** live and serving. Deployed as a Cloudflare Worker; health at [`/health`](https://skillfoundry.synaplex.ai/products/preflight/health). Current scope is static artifact linting against versioned policy packs — live endpoint probing (TLS, transport negotiation, tool listing) is **not yet** implemented and is reported honestly under `notChecked` in every response.
+**Status:** v0.1.1 is live and serving from two builds of this source: the
+canonical Skillfoundry route is a systemd-backed Node service behind nginx and
+Cloudflare Tunnel, and the direct origin is a Cloudflare Worker. Health is at
+[`/health`](https://skillfoundry.synaplex.ai/products/preflight/health). Current
+scope is static artifact linting against versioned policy packs — live endpoint
+probing (TLS, transport negotiation, tool listing) is **not yet** implemented
+and is reported honestly under `notChecked` in every response.
 
 ## What it checks
 
