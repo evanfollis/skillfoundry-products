@@ -4,7 +4,8 @@ After=network.target
 
 [Service]
 Type=simple
-User=root
+User=preflight
+Group=preflight
 WorkingDirectory=/opt/workspace/projects/skillfoundry/skillfoundry-products/products/preflight
 ExecStartPre=/opt/workspace/projects/skillfoundry/skillfoundry-products/products/preflight/deploy/verify_node_runtime.sh
 ExecStart=/opt/workspace/runtime/toolchains/node-v24.18.0-linux-x64/bin/node dist/serve.js
@@ -12,6 +13,43 @@ Environment=PORT=8030
 Environment=ENVIRONMENT=production
 Restart=on-failure
 RestartSec=5
+UMask=0077
+
+# The gateway reads immutable application/runtime files and only accepts
+# loopback traffic from the local reverse proxy.
+ProtectSystem=strict
+ProtectHome=yes
+ReadOnlyPaths=/opt/workspace/projects/skillfoundry/skillfoundry-products/products/preflight
+ReadOnlyPaths=/opt/workspace/runtime/toolchains/node-v24.18.0-linux-x64
+IPAddressDeny=any
+IPAddressAllow=localhost
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+# Generic service containment. MemoryDenyWriteExecute is intentionally omitted:
+# the exact Node.js runtime requires executable JIT memory.
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+PrivateTmp=yes
+PrivateDevices=yes
+DevicePolicy=closed
+PrivateMounts=yes
+ProtectClock=yes
+ProtectControlGroups=yes
+ProtectHostname=yes
+ProtectKernelLogs=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectProc=invisible
+ProcSubset=pid
+LockPersonality=yes
+RemoveIPC=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
 
 [Install]
 WantedBy=multi-user.target

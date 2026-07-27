@@ -43,3 +43,14 @@ deploy-check:
 	/bin/sh -n products/preflight/deploy/verify_node_runtime.sh
 	grep -Fqx 'ExecStartPre=/opt/workspace/projects/skillfoundry/skillfoundry-products/products/preflight/deploy/verify_node_runtime.sh' products/preflight/deploy/preflight.service
 	grep -Fqx 'ExecStart=/opt/workspace/runtime/toolchains/node-v24.18.0-linux-x64/bin/node dist/serve.js' products/preflight/deploy/preflight.service
+	grep -Fqx 'User=preflight' products/preflight/deploy/preflight.service
+	grep -Fqx 'ProtectSystem=strict' products/preflight/deploy/preflight.service
+	grep -Fqx 'NoNewPrivileges=yes' products/preflight/deploy/preflight.service
+	grep -Fqx 'IPAddressAllow=localhost' products/preflight/deploy/preflight.service
+	grep -Fqx 'User=preflight-watcher' products/preflight/deploy/preflight-watcher.service
+	grep -Fqx 'ProtectSystem=strict' products/preflight/deploy/preflight-watcher.service
+	grep -Fqx 'NoNewPrivileges=yes' products/preflight/deploy/preflight-watcher.service
+	grep -Fqx 'ReadWritePaths=/opt/workspace/runtime/.alerts/preflight-real-user.log' products/preflight/deploy/preflight-watcher.service
+	test -f products/preflight/deploy/preflight.sysusers
+	test -x products/preflight/deploy/prepare_service_access.sh
+	/bin/sh -n products/preflight/deploy/prepare_service_access.sh

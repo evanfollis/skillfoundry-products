@@ -29,6 +29,22 @@ runtime routes, and registry identities.
 - Local service: `preflight.service`, enabled with restart-on-failure and
   executing the checksum-verified Node.js v24.18.0 binary at
   `/opt/workspace/runtime/toolchains/node-v24.18.0-linux-x64/bin/node`.
+- Runtime containment: both `preflight.service` and
+  `preflight-watcher.service` use dedicated project identities, empty capability
+  sets, `ProtectSystem=strict`, `NoNewPrivileges`, private devices/tmp/mounts,
+  kernel/control-group/namespace/SUID restrictions, and explicit network
+  policy. The gateway accepts loopback only; the watcher has no IP access and
+  may write only `runtime/.alerts/preflight-real-user.log`.
+- Access preparation is explicit and bounded:
+  `deploy/prepare_service_access.sh` grants the gateway read/traverse ACLs for
+  the exact Node 24 toolchain and built `dist/`, then assigns only the watcher
+  alert file to its service identity. The gateway deliberately omits
+  `MemoryDenyWriteExecute` because the Node/V8 JIT requires executable memory;
+  this exception is dated 2026-07-27 and must be retested on a runtime change.
+  The watcher retains `ProtectProc=invisible` but omits `ProcSubset=pid` because
+  `journalctl` requires `/proc/sys/kernel/random/boot_id`; this exception was
+  canary-proven on 2026-07-27 and must be retested if the watcher stops using
+  `journalctl`.
 - Runtime preflight: `deploy/verify_node_runtime.sh` fails closed unless the
   installed binary reports v24.18.0 and matches the repository-pinned binary
   SHA-256.
