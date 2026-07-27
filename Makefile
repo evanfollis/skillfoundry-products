@@ -19,6 +19,7 @@ setup:
 check:
 	@$(PYTHON) -c 'import pathlib,tomllib; r=pathlib.Path("."); d=tomllib.loads((r/"repo.toml").read_text()); assert d["schema_version"] == 1 and d["shape"] == "monorepo"; [(_ for _ in ()).throw(AssertionError(f"missing {p}")) for p in ("README.md","repo.toml","Makefile","AGENTS.md","CLAUDE.md","docs/architecture.md") if not (r/p).exists()]'
 	corepack pnpm -r --if-present check
+	$(PYTHON) -m ruff check products/launchpad-lint/src mechanisms/bottleneck-radar/src
 	$(PYTHON) -m pytest -q products/launchpad-lint/tests
 	$(PYTHON) -m pytest -q mechanisms/bottleneck-radar/tests
 	$(MAKE) deploy-check
