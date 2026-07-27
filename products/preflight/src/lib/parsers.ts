@@ -62,6 +62,56 @@ function checkSize(input: string, artifact: string): string | null {
   return null;
 }
 
+const TRANSPORT_HINTS = [
+  ["streamable-http", "streamableHttp"],
+  ["streamable_http", "streamableHttp"],
+  ["streamablehttp", "streamableHttp"],
+  ["sse", "sse"],
+  ["stdio", "stdio"],
+] as const;
+
+function findTransportType(raw: string): string | undefined {
+  for (const line of raw.split(/\r?\n/)) {
+    const normalized = line.toLowerCase();
+    let searchFrom = 0;
+    let transportEnd = -1;
+
+    while (searchFrom < normalized.length) {
+      const transportStart = normalized.indexOf("transport", searchFrom);
+      if (transportStart === -1) break;
+
+      const separator = normalized[transportStart + "transport".length];
+      if (
+        separator === ":" ||
+        (separator !== undefined && separator.trim() === "")
+      ) {
+        transportEnd = transportStart + "transport".length + 1;
+        break;
+      }
+
+      searchFrom = transportStart + "transport".length;
+    }
+
+    if (transportEnd === -1) continue;
+
+    const value = normalized.slice(transportEnd);
+    let earliest:
+      | { offset: number; type: (typeof TRANSPORT_HINTS)[number][1] }
+      | undefined;
+
+    for (const [hint, type] of TRANSPORT_HINTS) {
+      const offset = value.indexOf(hint);
+      if (offset !== -1 && (!earliest || offset < earliest.offset)) {
+        earliest = { offset, type };
+      }
+    }
+
+    if (earliest) return earliest.type;
+  }
+
+  return undefined;
+}
+
 export function parseServerJson(raw: string): ParseResult<ParsedServerJson> {
   const sizeErr = checkSize(raw, "server.json");
   if (sizeErr) return { ok: false, error: sizeErr };
@@ -198,17 +248,9 @@ export function parseSmitheryYaml(
   const hasBuildConfig =
     /^build:/m.test(raw) || /^startCommand:/m.test(raw);
 
-  // Look for transport type hints
-  let transportType: string | undefined;
-  const transportMatch = raw.match(
-    /transport[:\s].*?(streamable[-_]?http|sse|stdio)/i,
-  );
-  if (transportMatch) {
-    const t = transportMatch[1].toLowerCase().replace(/[-_]/g, "");
-    if (t === "streamablehttp") transportType = "streamableHttp";
-    else if (t === "sse") transportType = "sse";
-    else if (t === "stdio") transportType = "stdio";
-  }
+  // Detect transport hints with bounded linear scans over each line. Avoid a
+  // backtracking expression here: this parser accepts user-controlled input.
+  const transportType = findTransportType(raw);
 
   return {
     ok: true,

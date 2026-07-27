@@ -34,3 +34,9 @@ current `@types/node` 24 line because its installed production runtime is the
 checksum-verified Node.js 24.18.0 binary; newer declaration majors do not define
 the deployed runtime contract. The remote-skill template uses Zod 4.4.3, which
 is inside MCP SDK 1.29's declared `^3.25 || ^4.0` peer range.
+
+Preflight treats uploaded manifests as uncontrolled input. Artifact size is
+bounded at 500 KB, and parsers that inspect that input use linear string scans
+instead of ambiguous backtracking expressions. The parser regression suite
+includes a repeated-key adversarial case and runs in the repository `check`
+gate before either the Worker or Node deployment path is released.
