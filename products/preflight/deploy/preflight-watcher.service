@@ -4,10 +4,46 @@ After=preflight.service
 
 [Service]
 Type=simple
+User=preflight-watcher
+Group=preflight-watcher
+SupplementaryGroups=systemd-journal
 ExecStart=/opt/workspace/projects/skillfoundry/skillfoundry-products/products/preflight/scripts/real-user-watcher.sh
 Restart=always
 RestartSec=5
-User=root
+UMask=0077
+
+# The watcher reads the journal and may append to exactly one alert file. It has
+# no network role and no other writable filesystem surface.
+ProtectSystem=strict
+ProtectHome=yes
+ReadOnlyPaths=/opt/workspace/projects/skillfoundry/skillfoundry-products/products/preflight
+ReadWritePaths=/opt/workspace/runtime/.alerts/preflight-real-user.log
+IPAddressDeny=any
+RestrictAddressFamilies=AF_UNIX
+
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+PrivateTmp=yes
+PrivateDevices=yes
+DevicePolicy=closed
+PrivateMounts=yes
+ProtectClock=yes
+ProtectControlGroups=yes
+ProtectHostname=yes
+ProtectKernelLogs=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectProc=invisible
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RemoveIPC=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
 
 [Install]
 WantedBy=multi-user.target
