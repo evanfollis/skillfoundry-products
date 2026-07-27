@@ -16,17 +16,20 @@ done
 
 toolchains_dir=/opt/workspace/runtime/toolchains
 dist_dir=/opt/workspace/projects/skillfoundry/skillfoundry-products/products/preflight/dist
+runtime_check=/opt/workspace/projects/skillfoundry/skillfoundry-products/products/preflight/deploy/verify_node_runtime.sh
 alerts_dir=/opt/workspace/runtime/.alerts
 alert_log="$alerts_dir/preflight-real-user.log"
 
 test -x "$toolchains_dir/node-v24.18.0-linux-x64/bin/node"
 test -f "$dist_dir/serve.js"
+test -x "$runtime_check"
 install -d -m 0755 "$alerts_dir"
 touch "$alert_log"
 
 # The gateway may traverse the non-listable toolchain vault to the exact pinned
 # Node directory and may read only the built application tree.
 setfacl -m u:preflight:--x "$toolchains_dir"
+setfacl -m u:preflight:r-x "$runtime_check"
 find "$dist_dir" -type d -exec setfacl -m u:preflight:r-x,d:u:preflight:r-x {} +
 find "$dist_dir" -type f -exec setfacl -m u:preflight:r-- {} +
 
