@@ -17,7 +17,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "pytest>=8.2.0",
-  "ruff==0.16.0",
+  "ruff==0.16.5",
 ]
 
 # Keep the lint policy explicit so ruff releases cannot silently redefine the gate.
