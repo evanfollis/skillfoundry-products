@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Internal MCP mechanism that turns noisy builder signals into ranked bottlenecks and concise opportunity briefs."
 requires-python = ">=3.12"
 dependencies = [
-  "mcp[cli]>=1.9.4",
+  "mcp[cli]>=1.9.4,<2",
   "starlette>=0.37.2",
   "uvicorn>=0.30.1",
   "httpx>=0.27.0",

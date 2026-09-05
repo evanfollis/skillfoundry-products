@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "MCP product that audits launch readiness and drafts a marketplace launch package."
 requires-python = ">=3.12"
 dependencies = [
-  "mcp[cli]>=1.9.4",
+  "mcp[cli]>=1.9.4,<2",
   "starlette>=0.37.2",
   "uvicorn>=0.30.1",
   "pydantic>=2.7.0"
