@@ -6,13 +6,17 @@ import os
 import tempfile
 import unittest
 
+from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import Response
 
 from launchpad_lint.app import (
+    MAX_JSON_BODY_BYTES,
     SharedSecretMiddleware,
+    _read_json_object,
     feedback_summary,
     health,
+    homepage,
     record_feedback_endpoint,
     registry_server_json,
     static_server_card,
@@ -21,6 +25,17 @@ from launchpad_lint.app import (
 
 
 class AppTests(unittest.TestCase):
+    def test_homepage_is_a_useful_html_front_door(self) -> None:
+        request = self._json_request(path="/", payload={})
+        response = asyncio.run(homepage(request))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.media_type, "text/html")
+        body = response.body.decode("utf-8")
+        self.assertIn("Launchpad Lint", body)
+        self.assertIn("/api/audit", body)
+        self.assertIn("/products/preflight/", body)
+
     def test_health_route(self) -> None:
         request = self._json_request(path="/health", payload={})
         response = asyncio.run(health(request))
@@ -75,6 +90,17 @@ class AppTests(unittest.TestCase):
         self.assertEqual(summary.status_code, 200)
         self.assertGreaterEqual(json.loads(summary.body)["total_reviews"], 1)
 
+    def test_json_input_is_bounded_and_must_be_an_object(self) -> None:
+        invalid = self._raw_request(path="/api/audit", body=b"not-json")
+        array = self._raw_request(path="/api/audit", body=b"[]")
+        oversized = self._raw_request(path="/api/audit", body=b"x" * (MAX_JSON_BODY_BYTES + 1))
+
+        for request, status_code in ((invalid, 400), (array, 400), (oversized, 413)):
+            with self.subTest(status_code=status_code):
+                with self.assertRaises(HTTPException) as raised:
+                    asyncio.run(_read_json_object(request))
+                self.assertEqual(raised.exception.status_code, status_code)
+
     def test_telemetry_summary_endpoint(self) -> None:
         previous_telemetry = os.environ.get("LAUNCHPAD_LINT_TELEMETRY_PATH")
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -117,6 +143,10 @@ class AppTests(unittest.TestCase):
     def _json_request(self, *, path: str, payload: dict[str, object]) -> Request:
         body = json.dumps(payload).encode("utf-8")
 
+        return self._raw_request(path=path, body=body)
+
+    def _raw_request(self, *, path: str, body: bytes) -> Request:
+
         async def receive() -> dict[str, object]:
             return {"body": body, "more_body": False, "type": "http.request"}
 
@@ -145,6 +175,10 @@ class AppTests(unittest.TestCase):
             )
             self.assertEqual(unauthorized.status_code, 401)
             self.assertNotEqual(authorized.status_code, 401)
+            feedback_unauthorized = asyncio.run(
+                self._dispatch_secret_middleware(headers=[], path="/feedback", method="POST")
+            )
+            self.assertEqual(feedback_unauthorized.status_code, 401)
         finally:
             if previous_market is None:
                 os.environ.pop("AGENTICMARKET_SECRET", None)
@@ -157,7 +191,11 @@ class AppTests(unittest.TestCase):
                 os.environ["LAUNCHPAD_LINT_SHARED_SECRET"] = previous_preview
 
     async def _dispatch_secret_middleware(
-        self, *, headers: list[tuple[bytes, bytes]]
+        self,
+        *,
+        headers: list[tuple[bytes, bytes]],
+        path: str = "/mcp/",
+        method: str = "GET",
     ) -> Response:
         async def receive() -> dict[str, object]:
             return {"body": b"", "more_body": False, "type": "http.request"}
@@ -165,8 +203,8 @@ class AppTests(unittest.TestCase):
         request = Request(
             {
                 "type": "http",
-                "method": "GET",
-                "path": "/mcp/",
+                "method": method,
+                "path": path,
                 "headers": headers,
                 "query_string": b"",
             },

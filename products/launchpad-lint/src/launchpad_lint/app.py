@@ -12,11 +12,13 @@ from typing import Any, Callable, TypeVar
 
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
+from pydantic import ValidationError
 from starlette.applications import Starlette
+from starlette.exceptions import HTTPException
 from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import JSONResponse, PlainTextResponse
+from starlette.responses import HTMLResponse, JSONResponse
 from starlette.routing import Mount, Route
 
 from .analysis import audit_launch_readiness, draft_launch_package
@@ -28,13 +30,16 @@ from .telemetry import emit_tool_event, summarize_telemetry
 
 ToolReturn = TypeVar("ToolReturn")
 SERVER_VERSION = "0.1.0"
+MAX_JSON_BODY_BYTES = 500_000
 
 
 class SharedSecretMiddleware(BaseHTTPMiddleware):
     """Require the appropriate secret for MCP requests when configured."""
 
     async def dispatch(self, request: Request, call_next):
-        if not request.url.path.startswith("/mcp"):
+        protects_mcp = request.url.path.startswith("/mcp")
+        protects_feedback_write = request.url.path == "/feedback" and request.method == "POST"
+        if not protects_mcp and not protects_feedback_write:
             return await call_next(request)
 
         # AgenticMarket uses a fixed proxy header after a server is approved.
@@ -55,10 +60,57 @@ class SharedSecretMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 
-async def homepage(_: Request) -> PlainTextResponse:
-    """Minimal landing route."""
+async def homepage(_: Request) -> HTMLResponse:
+    """Explain the product and expose an immediately usable REST example."""
 
-    return PlainTextResponse("Launchpad Lint MCP product is running.\n")
+    return HTMLResponse(
+        """<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Audit an MCP server launch package for metadata gaps and marketplace-readiness issues.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://skillfoundry.synaplex.ai/products/launchpad-lint/">
+  <title>Launchpad Lint — MCP Marketplace Launch Auditor</title>
+  <style>
+    :root { color-scheme: light dark; font-family: ui-sans-serif, system-ui, sans-serif; }
+    body { max-width: 760px; margin: 0 auto; padding: 3rem 1.25rem; line-height: 1.6; }
+    h1 { line-height: 1.1; margin-bottom: .5rem; }
+    h2 { margin-top: 2.5rem; }
+    .eyebrow { color: #16a34a; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .lead { font-size: 1.15rem; }
+    code, pre { background: color-mix(in srgb, CanvasText 8%, Canvas); border-radius: .35rem; }
+    code { padding: .1rem .25rem; }
+    pre { overflow-x: auto; padding: 1rem; }
+    a { color: #16803c; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">Skillfoundry</p>
+    <h1>Launchpad Lint</h1>
+    <p class="lead">Audit whether an MCP server package is ready for a credible marketplace launch, then draft the minimum launch package.</p>
+
+    <h2>What it checks</h2>
+    <ul>
+      <li>server identity, tool names, and tool descriptions</li>
+      <li>README and marketplace-listing completeness</li>
+      <li>endpoint and launch-package readiness</li>
+    </ul>
+
+    <h2>Try the open REST audit</h2>
+    <pre><code>curl -X POST https://skillfoundry.synaplex.ai/products/launchpad-lint/api/audit \\
+  -H 'content-type: application/json' \\
+  -d '{"server_name":"my-server","tool_names":["search"],"tool_descriptions":["Search product documentation"]}'</code></pre>
+
+    <p>Agent clients can use the protected <a href="./mcp/">MCP endpoint</a> through an authorized distribution channel. Registry metadata is available as <a href="./server.json">server.json</a>.</p>
+    <p><a href="/products/preflight/">Need to check registry manifests and publish metadata instead? Use Preflight.</a></p>
+  </main>
+</body>
+</html>
+"""
+    )
 
 
 # --- REST API endpoints (for RapidAPI, direct integrations, etc.) ---
@@ -67,7 +119,7 @@ async def homepage(_: Request) -> PlainTextResponse:
 async def api_audit(request: Request) -> JSONResponse:
     """REST API: audit launch readiness for an MCP server package."""
 
-    payload = await request.json()
+    payload = await _read_json_object(request)
     result = instrument_tool_call(
         tool_name="audit_launch_readiness",
         inputs=payload,
@@ -86,7 +138,7 @@ async def api_audit(request: Request) -> JSONResponse:
 async def api_draft(request: Request) -> JSONResponse:
     """REST API: draft a launch package for an MCP server."""
 
-    payload = await request.json()
+    payload = await _read_json_object(request)
     result = instrument_tool_call(
         tool_name="draft_launch_package",
         inputs=payload,
@@ -111,8 +163,11 @@ async def health(_: Request) -> JSONResponse:
 async def record_feedback_endpoint(request: Request) -> JSONResponse:
     """Capture one durable reviewer feedback record."""
 
-    payload = await request.json()
-    submission = LaunchFeedbackSubmission.model_validate(payload)
+    payload = await _read_json_object(request)
+    try:
+        submission = LaunchFeedbackSubmission.model_validate(payload)
+    except ValidationError as exc:
+        return JSONResponse(status_code=422, content={"error": "Invalid feedback", "details": exc.errors()})
     receipt = record_feedback(submission)
     emit_tool_event(
         type="user_feedback_recorded",
@@ -155,6 +210,21 @@ async def registry_server_json(_: Request) -> JSONResponse:
 
 def _iso_utc_now() -> str:
     return datetime.now(UTC).isoformat().replace("+00:00", "Z")
+
+
+async def _read_json_object(request: Request) -> dict[str, Any]:
+    """Read one bounded JSON object or fail with a client error."""
+
+    body = await request.body()
+    if len(body) > MAX_JSON_BODY_BYTES:
+        raise HTTPException(status_code=413, detail="Request body is too large")
+    try:
+        payload = json.loads(body)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=400, detail="Request body must be valid JSON") from exc
+    if not isinstance(payload, dict):
+        raise HTTPException(status_code=400, detail="Request body must be a JSON object")
+    return payload
 
 
 def _payload_size_bytes(payload: Any) -> int:

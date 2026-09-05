@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Tail Preflight telemetry and flag first real user conversions.
-# A "real" call = method=tools/call AND UA is not a known crawler/tester
-#   AND sourceType is not smoke/system/cron.
-# Writes flagged lines to /opt/workspace/runtime/.alerts/preflight-real-user.log.
+# Tail Preflight telemetry and flag calls that deserve evidence review.
+# A candidate call = method=tools/call AND UA is not known automation
+#   AND sourceType is not smoke/system/cron. A candidate is not proof of a
+#   human user, buyer, or commercial conversion.
+# Writes candidates to /opt/workspace/runtime/.alerts/preflight-real-user.log.
 #
 # IMPORTANT — latencyMs field:
 #   latencyMs measures server-side processing time, NOT network round-trip.
@@ -11,42 +12,32 @@
 #   Do NOT use latencyMs as a proxy for "is this from localhost?" — it isn't.
 #
 # DISCRIMINATION STRATEGY (ADR-0019):
-#   1. Primary: sourceType field. Events with sourceType=smoke|system|cron are
-#      excluded. When the service is deployed with sourceType support, automated
-#      callers MUST set X-Source-Type header. This is the correct long-term fix.
-#      Status: code_landed as of 4907d26, NOT yet deployed as of 2026-04-17.
-#   2. Proxy (until sourceType is deployed): Mozilla/Linux UA is excluded.
-#      Investigation (2026-04-17): 11,358 Mozilla/Linux events in 24h, all
-#      initialize/tools/list auto-reconnects from Claude.ai MCP client or
-#      operator self-testing. Zero confirmed external-user tools/call events
-#      from this UA. Proxy rule is conservative — it excludes any genuine
-#      external user on Linux/Chrome until sourceType discrimination is live.
-#   3. sourceType gate: after deployment, remove the Mozilla proxy rule and
-#      rely solely on sourceType != user.
+#   1. sourceType excludes callers that truthfully self-identify as
+#      smoke/system/cron. It is caller-controlled and cannot prove human use.
+#   2. A conservative user-agent classifier excludes known crawlers, indexers,
+#      audit systems, generic HTTP clients seen in automated scans, and the
+#      historical Mozilla/Linux operator traffic.
+#   3. Everything else is "unattributed" and enters a review queue. It is never
+#      promoted automatically to external conversation/commitment/transaction.
 
 set -euo pipefail
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=traffic-classification.sh
+source "$SCRIPT_DIR/traffic-classification.sh"
 
 ALERTS_DIR="/opt/workspace/runtime/.alerts"
 ALERT_LOG="$ALERTS_DIR/preflight-real-user.log"
 mkdir -p "$ALERTS_DIR"
-
-# Known non-user UA substrings to ignore.
-# Mozilla/Linux is a proxy for operator/Claude.ai self-traffic until sourceType
-# is deployed — see comment block above before removing it.
-IGNORE_RE='Chiark|ad-mcp-probe|python-httpx|test-verify|smithery|node$|Mozilla.*Linux'
-
-# Excluded sourceType values (self-generated or automated)
-IGNORE_SOURCE_RE='^(smoke|system|cron)$'
 
 journalctl -u preflight -f -o cat --no-pager | while IFS= read -r line; do
   [[ "$line" != \{* ]] && continue
   method=$(echo "$line" | jq -r '.toolName // empty' 2>/dev/null) || continue
   [[ "$method" != "tools/call" ]] && continue
   ua=$(echo "$line" | jq -r '.userAgent // "(none)"' 2>/dev/null)
-  if echo "$ua" | grep -qE "$IGNORE_RE"; then continue; fi
-  # sourceType gate: skip automated/smoke events once sourceType is deployed
   source_type=$(echo "$line" | jq -r '.sourceType // "user"' 2>/dev/null)
-  if echo "$source_type" | grep -qE "$IGNORE_SOURCE_RE"; then continue; fi
+  classification=$(classify_preflight_traffic "$source_type" "$ua")
+  [[ "$classification" != "unattributed" ]] && continue
   ts=$(date -Iseconds)
-  echo "[$ts] REAL-USER ua=$ua sourceType=$source_type line=$line" >> "$ALERT_LOG"
+  echo "[$ts] CANDIDATE-EXTERNAL-TOOL-CALL ua=$ua sourceType=$source_type classification=$classification line=$line" >> "$ALERT_LOG"
 done

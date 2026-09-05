@@ -8,11 +8,13 @@ Track which monetization and discovery arms are prepared, launched, or killed.
 
 ### AgenticMarket
 
-- status: ready for operator submission
+- status: live and continuously health-probed
 - canonical runtime: `https://skillfoundry.synaplex.ai/products/launchpad-lint/mcp/`
-- pricing target: `$0.09` per successful call
-- visibility target: `unlisted`
+- live price: `$0.09` per call
+- public signal verified 2026-09-05: 5 installs and 1 star on the AgenticMarket leaderboard
+- usage signal verified 2026-09-05: not present in the public top-15 most-used list; the local production telemetry stream has not yet recorded a completed product tool call
 - payment role: primary current payment arm
+- commercial interpretation: listing and install activation are real, but no payment or repeat-use evidence is available to Skillfoundry
 
 ### Smithery
 

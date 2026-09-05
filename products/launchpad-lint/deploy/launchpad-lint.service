@@ -6,6 +6,9 @@ After=network.target
 Type=simple
 WorkingDirectory=/opt/workspace/projects/skillfoundry/skillfoundry-products/products/launchpad-lint
 EnvironmentFile=/opt/workspace/projects/skillfoundry/skillfoundry-products/products/launchpad-lint/.env.production
+Environment=LAUNCHPAD_LINT_ENVIRONMENT=production
+Environment=LAUNCHPAD_LINT_TELEMETRY_PATH=/opt/workspace/runtime/projects/skillfoundry/launchpad-lint/telemetry.ndjson
+Environment=LAUNCHPAD_LINT_FEEDBACK_PATH=/opt/workspace/runtime/projects/skillfoundry/launchpad-lint/feedback.json
 ExecStart=/opt/workspace/projects/skillfoundry/skillfoundry-products/products/launchpad-lint/.venv/bin/python -m uvicorn launchpad_lint.app:app --host 127.0.0.1 --port 8010
 Restart=always
 RestartSec=5

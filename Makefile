@@ -55,3 +55,10 @@ deploy-check:
 	test -f products/preflight/deploy/preflight.sysusers
 	test -x products/preflight/deploy/prepare_service_access.sh
 	/bin/sh -n products/preflight/deploy/prepare_service_access.sh
+	/bin/bash -n products/preflight/scripts/traffic-classification.sh
+	/bin/bash -n products/preflight/scripts/real-user-watcher.sh
+	/bin/bash -n products/preflight/scripts/usage.sh
+	/bin/bash products/preflight/tests/traffic-classification.test.sh
+	grep -Fqx 'Environment=LAUNCHPAD_LINT_ENVIRONMENT=production' products/launchpad-lint/deploy/launchpad-lint.service
+	grep -Fqx 'Environment=LAUNCHPAD_LINT_TELEMETRY_PATH=/opt/workspace/runtime/projects/skillfoundry/launchpad-lint/telemetry.ndjson' products/launchpad-lint/deploy/launchpad-lint.service
+	test -f products/platform/index.html

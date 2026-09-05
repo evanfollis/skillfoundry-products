@@ -18,6 +18,8 @@ Cloudflare tunnel.
 - repo root: `/opt/workspace/projects/skillfoundry/skillfoundry-products/products/launchpad-lint`
 - env file: `/opt/workspace/projects/skillfoundry/skillfoundry-products/products/launchpad-lint/.env.production`
 - service file: `/etc/systemd/system/launchpad-lint.service`
+- production telemetry: `/opt/workspace/runtime/projects/skillfoundry/launchpad-lint/telemetry.ndjson`
+- production feedback: `/opt/workspace/runtime/projects/skillfoundry/launchpad-lint/feedback.json`
 
 ## Install Steps
 
@@ -38,6 +40,7 @@ Populate:
 ## systemd
 
 ```bash
+install -d -m 0750 /opt/workspace/runtime/projects/skillfoundry/launchpad-lint
 cp deploy/launchpad-lint.service /etc/systemd/system/launchpad-lint.service
 systemctl daemon-reload
 systemctl enable --now launchpad-lint
