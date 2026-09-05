@@ -30,6 +30,10 @@ apt-get install -y nginx
 ## Install Gateway Config
 
 ```bash
+install -d -m 0755 /opt/workspace/runtime/projects/skillfoundry/platform
+install -m 0644 \
+  /opt/workspace/projects/skillfoundry/skillfoundry-products/products/platform/index.html \
+  /opt/workspace/runtime/projects/skillfoundry/platform/index.html
 cp /opt/workspace/projects/skillfoundry/skillfoundry-products/deploy/skillfoundry-gateway.nginx.conf /etc/nginx/conf.d/skillfoundry.conf
 nginx -t
 systemctl enable --now nginx

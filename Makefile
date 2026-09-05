@@ -62,3 +62,4 @@ deploy-check:
 	grep -Fqx 'Environment=LAUNCHPAD_LINT_ENVIRONMENT=production' products/launchpad-lint/deploy/launchpad-lint.service
 	grep -Fqx 'Environment=LAUNCHPAD_LINT_TELEMETRY_PATH=/opt/workspace/runtime/projects/skillfoundry/launchpad-lint/telemetry.ndjson' products/launchpad-lint/deploy/launchpad-lint.service
 	test -f products/platform/index.html
+	grep -Fq 'root /opt/workspace/runtime/projects/skillfoundry/platform;' deploy/skillfoundry-gateway.nginx.conf
