@@ -34,6 +34,9 @@ install -d -m 0755 /opt/workspace/runtime/projects/skillfoundry/platform
 install -m 0644 \
   /opt/workspace/projects/skillfoundry/skillfoundry-products/products/platform/index.html \
   /opt/workspace/runtime/projects/skillfoundry/platform/index.html
+# The runtime project root is deliberately non-listable. Grant nginx only
+# traversal to the exact public artifact path; do not make the directory broad-readable.
+setfacl -m u:www-data:--x /opt/workspace/runtime/projects
 cp /opt/workspace/projects/skillfoundry/skillfoundry-products/deploy/skillfoundry-gateway.nginx.conf /etc/nginx/conf.d/skillfoundry.conf
 nginx -t
 systemctl enable --now nginx
