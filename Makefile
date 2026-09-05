@@ -55,6 +55,7 @@ deploy-check:
 	test -f products/preflight/deploy/preflight.sysusers
 	test -x products/preflight/deploy/prepare_service_access.sh
 	/bin/sh -n products/preflight/deploy/prepare_service_access.sh
+	grep -Fq 'setfacl -m u:preflight-watcher:r-- "$$traffic_classifier"' products/preflight/deploy/prepare_service_access.sh
 	/bin/bash -n products/preflight/scripts/traffic-classification.sh
 	/bin/bash -n products/preflight/scripts/real-user-watcher.sh
 	/bin/bash -n products/preflight/scripts/usage.sh
